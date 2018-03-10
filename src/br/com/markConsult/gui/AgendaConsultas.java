@@ -5,10 +5,12 @@
 package br.com.markConsult.gui;
 
 import br.com.markConsult.classesMetodos.ConsultTableModel;
+import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.FormatacaoConteudo;
+
 import br.com.markConsult.dao.CadConsultasDAO;
 import br.com.markConsult.dao.ICadConsultasDAO;
-import br.com.markConsult.dao.entidades.Consulta;
+import br.com.markConsult.entidades.Consulta;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
@@ -23,35 +25,37 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 
 /**
  *
  * @author jeferson
  */
 public class AgendaConsultas extends javax.swing.JInternalFrame {
-    
- 
-   
+
     private int selecionado = 0;
     private int selecionado2 = 0;
-    
-    private ConsultTableModel model;
-    private ConsultTableModel model2;
-    
+
+    private final ConsultTableModel model;
+    private final ConsultTableModel model2;
+
     String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date(System.currentTimeMillis())));
     SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+
     /**
      * Creates new form CadConsultas
+     *
      * @throws java.text.ParseException
      */
     public AgendaConsultas() throws ParseException {
-        initComponents();  
-        
+        initComponents();
+        tf_nomeTabela1.setDocument(new FixedLengthDocument(70));
+        tf_nomeTabela2.setDocument(new FixedLengthDocument(70));
         addpopup();
-       // addpopup2();
+        // addpopup2();
         Date dt = (Date) converte(data);
         tf_dataConsul.setDate(dt);
-        
+
         jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         jTable2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         model = new ConsultTableModel();
@@ -66,10 +70,10 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         jTable1.getColumnModel().getColumn(5).setPreferredWidth(100);
         jTable1.getColumnModel().getColumn(6).setPreferredWidth(100);
         jTable1.getColumnModel().getColumn(7).setPreferredWidth(200);
-        jTable1.getColumnModel().getColumn(8).setPreferredWidth(65);
+        jTable1.getColumnModel().getColumn(8).setPreferredWidth(100);
         jTable1.getColumnModel().getColumn(9).setPreferredWidth(90);
         jTable1.getColumnModel().getColumn(10).setPreferredWidth(1000);
-        
+
         jTable2.getColumnModel().getColumn(0).setMaxWidth(48);
         jTable2.getColumnModel().getColumn(1).setPreferredWidth(200);
         jTable2.getColumnModel().getColumn(2).setPreferredWidth(100);
@@ -78,28 +82,23 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         jTable2.getColumnModel().getColumn(5).setPreferredWidth(100);
         jTable2.getColumnModel().getColumn(6).setPreferredWidth(100);
         jTable2.getColumnModel().getColumn(7).setPreferredWidth(200);
-        jTable2.getColumnModel().getColumn(8).setPreferredWidth(65);
+        jTable2.getColumnModel().getColumn(8).setPreferredWidth(100);
         jTable2.getColumnModel().getColumn(9).setPreferredWidth(90);
         jTable2.getColumnModel().getColumn(10).setPreferredWidth(1000);
-        buscaPorData(pegadataAtual(),1);
+        buscaPorData(pegadataAtual(), 1);
         //addPopup(jTable1);
-        
 
         bt_altSeqConsul.setEnabled(false);
 
-        tf_dataConsul.addPropertyChangeListener(new java.beans.PropertyChangeListener() {//GERA A AÇÃO PRA TROCA DE PROPRIEDADE  
-            @Override
-            
-            public void propertyChange(java.beans.PropertyChangeEvent evt) { //GERA EVENTO  
-                    try {
-                        buscaPorData(pegadataAtual(),1);
-                    } catch (ParseException ex) {
-                        Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                    
-                
-        });
+        tf_dataConsul.addPropertyChangeListener((java.beans.PropertyChangeEvent evt) -> {
+            //GERA EVENTO
+            try {
+                buscaPorData(pegadataAtual(), 1);
+            } catch (ParseException ex) {
+                Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } //GERA A AÇÃO PRA TROCA DE PROPRIEDADE
+        );
     }
 
     /**
@@ -120,9 +119,10 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuIt_historico = new javax.swing.JMenuItem();
         jMenuIt_retorno = new javax.swing.JMenuItem();
-        jMenuIt_Procedimento = new javax.swing.JMenuItem();
         jMenuIt_Excluir = new javax.swing.JMenuItem();
         jMenuIt_addFila = new javax.swing.JMenuItem();
+        jMenuIt_verProcedimentos = new javax.swing.JMenuItem();
+        jMenuIt_Imprimir = new javax.swing.JMenuItem();
         jPMenu2 = new javax.swing.JPopupMenu();
         jM_altStatus1 = new javax.swing.JMenu();
         jMenuIt_Encerra1 = new javax.swing.JMenuItem();
@@ -132,9 +132,10 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenuIt_historico1 = new javax.swing.JMenuItem();
         jMenuIt_retorno1 = new javax.swing.JMenuItem();
-        jMenuIt_Procedimento1 = new javax.swing.JMenuItem();
         jMenuIt_Excluir1 = new javax.swing.JMenuItem();
         jMenuIt_RmFila = new javax.swing.JMenuItem();
+        jMenuIt_verProcedimentos1 = new javax.swing.JMenuItem();
+        jMenuIt_Imprimir1 = new javax.swing.JMenuItem();
         jPanel2 = new javax.swing.JPanel();
         bt_movPcima = new javax.swing.JButton();
         bt_movPbaixo = new javax.swing.JButton();
@@ -147,6 +148,8 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         bt_excluir = new javax.swing.JButton();
         bt_editar = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         tf_dataConsul = new com.toedter.calendar.JDateChooser("dd/MM/yyyy" , "##/##/####" , ' ');
@@ -161,7 +164,13 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         bt_excluir1 = new javax.swing.JButton();
         bt_editar1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        tf_nomeTabela1 = new javax.swing.JTextField();
+        tf_nomeTabela2 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
 
         jM_altStatus.setText("Alterar status");
 
@@ -200,7 +209,7 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         jPMenu.add(jM_altStatus);
         jPMenu.add(jSeparator1);
 
-        jMenuIt_historico.setText("Ver historico do Paciente");
+        jMenuIt_historico.setText("Ver histórico do Paciente");
         jMenuIt_historico.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuIt_historicoActionPerformed(evt);
@@ -215,14 +224,6 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
             }
         });
         jPMenu.add(jMenuIt_retorno);
-
-        jMenuIt_Procedimento.setText("Marcar Procedimento");
-        jMenuIt_Procedimento.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuIt_ProcedimentoActionPerformed(evt);
-            }
-        });
-        jPMenu.add(jMenuIt_Procedimento);
 
         jMenuIt_Excluir.setForeground(new java.awt.Color(255, 0, 0));
         jMenuIt_Excluir.setText("Excluir");
@@ -240,6 +241,23 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
             }
         });
         jPMenu.add(jMenuIt_addFila);
+
+        jMenuIt_verProcedimentos.setText("Ver procedimento");
+        jMenuIt_verProcedimentos.setActionCommand("Ver exames");
+        jMenuIt_verProcedimentos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuIt_verProcedimentosActionPerformed(evt);
+            }
+        });
+        jPMenu.add(jMenuIt_verProcedimentos);
+
+        jMenuIt_Imprimir.setText("Imprimir Consulta");
+        jMenuIt_Imprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuIt_ImprimirActionPerformed(evt);
+            }
+        });
+        jPMenu.add(jMenuIt_Imprimir);
 
         jM_altStatus1.setText("Alterar status");
 
@@ -278,7 +296,7 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         jPMenu2.add(jM_altStatus1);
         jPMenu2.add(jSeparator2);
 
-        jMenuIt_historico1.setText("Ver historico do Paciente");
+        jMenuIt_historico1.setText("Ver histórico do Paciente");
         jMenuIt_historico1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuIt_historico1ActionPerformed(evt);
@@ -293,14 +311,6 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
             }
         });
         jPMenu2.add(jMenuIt_retorno1);
-
-        jMenuIt_Procedimento1.setText("Marcar Procedimento");
-        jMenuIt_Procedimento1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuIt_Procedimento1ActionPerformed(evt);
-            }
-        });
-        jPMenu2.add(jMenuIt_Procedimento1);
 
         jMenuIt_Excluir1.setForeground(new java.awt.Color(255, 0, 0));
         jMenuIt_Excluir1.setText("Excluir");
@@ -318,6 +328,22 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
             }
         });
         jPMenu2.add(jMenuIt_RmFila);
+
+        jMenuIt_verProcedimentos1.setText("Ver exames");
+        jMenuIt_verProcedimentos1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuIt_verProcedimentos1ActionPerformed(evt);
+            }
+        });
+        jPMenu2.add(jMenuIt_verProcedimentos1);
+
+        jMenuIt_Imprimir1.setText("Imprimir Consulta");
+        jMenuIt_Imprimir1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuIt_Imprimir1ActionPerformed(evt);
+            }
+        });
+        jPMenu2.add(jMenuIt_Imprimir1);
 
         setClosable(true);
         setIconifiable(true);
@@ -431,12 +457,30 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
             }
         });
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/Log-Out-icon (1).png"))); // NOI18N
-        jButton2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Sair", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Ubuntu", 0, 11))); // NOI18N
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/print.png"))); // NOI18N
+        jButton2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Imprimir", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Ubuntu", 0, 11))); // NOI18N
         jButton2.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/Log-Out-icon (1).png"))); // NOI18N
+        jButton4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Sair", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Ubuntu", 0, 11))); // NOI18N
+        jButton4.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/list.png"))); // NOI18N
+        jButton6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Exames", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Ubuntu", 0, 11))); // NOI18N
+        jButton6.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
             }
         });
 
@@ -454,23 +498,30 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
                 .addComponent(bt_editar, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(bt_buscar)
                             .addComponent(bt_novo))
                         .addComponent(bt_excluir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(bt_editar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, 0))
         );
 
-        jPanel3Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {bt_buscar, bt_editar, bt_excluir, bt_novo, jButton2});
+        jPanel3Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {bt_buscar, bt_editar, bt_excluir, bt_novo});
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
@@ -495,7 +546,7 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(0, 0, 0)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tf_dataConsul, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -508,13 +559,13 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(bt_data_proxima, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(bt_data_anterior, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(tf_dataConsul, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(11, 11, 11))
+                .addGap(15, 15, 15))
         );
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
@@ -589,6 +640,24 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
             }
         });
 
+        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/print.png"))); // NOI18N
+        jButton5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Imprimir", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Ubuntu", 0, 11))); // NOI18N
+        jButton5.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/list.png"))); // NOI18N
+        jButton7.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Exames", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Ubuntu", 0, 11))); // NOI18N
+        jButton7.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -602,21 +671,29 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
                 .addGap(0, 0, 0)
                 .addComponent(bt_editar1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
+                .addComponent(jButton5)
+                .addGap(0, 0, 0)
+                .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0))
         );
+
+        jPanel5Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {bt_editar1, bt_excluir1, jButton3, jButton5});
+
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(bt_novo1, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
-                    .addComponent(bt_excluir1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addComponent(bt_editar1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(bt_novo1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(bt_excluir1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(bt_editar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(bt_buscar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(bt_buscar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 0, 0))
         );
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/update-icon.png"))); // NOI18N
@@ -626,73 +703,110 @@ public class AgendaConsultas extends javax.swing.JInternalFrame {
             }
         });
 
+        jLabel2.setText("Pesquisa:");
+
+        tf_nomeTabela1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tf_nomeTabela1KeyReleased(evt);
+            }
+        });
+
+        tf_nomeTabela2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tf_nomeTabela2KeyReleased(evt);
+            }
+        });
+
+        jLabel4.setText("Pesquisa:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(tf_nomeTabela2))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(tf_nomeTabela1))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton1)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 1046, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1))
-                    .addComponent(jLabel1)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1046, Short.MAX_VALUE)
-                            .addComponent(jScrollPane2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(tf_nomeTabela1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(5, 5, 5)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(tf_nomeTabela2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(48, 48, 48))
+                        .addGap(72, 72, 72)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(114, 114, 114))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void bt_editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_editarActionPerformed
- 
+
         editaConsulta();
 
     }//GEN-LAST:event_bt_editarActionPerformed
 
     private void bt_novoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_novoActionPerformed
-try {                                        
+        try {
             CadConsultaModal telCadCons = new CadConsultaModal(null, true);
             telCadCons.estadoBotoes("novo");
             telCadCons.novoCad(pegadataAtual());
             telCadCons.setVisible(true);
-            buscaPorData(pegadataAtual(),2);
+            buscaPorData(pegadataAtual(), 2);
         } catch (ParseException ex) {
             Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
-      
+
     }//GEN-LAST:event_bt_novoActionPerformed
 
     private void bt_excluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_excluirActionPerformed
@@ -700,57 +814,59 @@ try {
     }//GEN-LAST:event_bt_excluirActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        dispose();
+        int conSele = jTable1.getSelectedRow();
+        if (conSele >= 0) {
+            Consulta c = model.getItem(conSele);
+            imprimirConsulta(c.getId(), conSele + 1);
+        }
+       
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void bt_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_buscarActionPerformed
-       
+
         ConsPorPaciente tela_busca = new ConsPorPaciente(null, true);
         tela_busca.setVisible(true);
         try {
-               buscaPorData(pegadataAtual(),3);
+            buscaPorData(pegadataAtual(), 3);
         } catch (ParseException ex) {
             Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
-     
+
 
     }//GEN-LAST:event_bt_buscarActionPerformed
 
     private void bt_movPcimaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_movPcimaActionPerformed
         //bt_altSeqConsul.setEnabled(true);
 
-        
-            int c = jTable2.getSelectedRow();
-            if (c < 0) {
-                JOptionPane.showMessageDialog(null, "Escolha uma consulta!");
-            } else if (c == 0) {
-            } else {
-                Consulta con = model2.getItem(c);
-                model2.excluir(con);
-                model2.movePcima(con, c - 1);
-                model2.setValores();
-                jTable2.getSelectionModel().setSelectionInterval(c - 1, c - 1);
-                bt_altSeqConsul.setEnabled(true);
-            }
+        int c = jTable2.getSelectedRow();
+        if (c < 0) {
+            JOptionPane.showMessageDialog(null, "Escolha uma consulta!");
+        } else if (c == 0) {
+        } else {
+            Consulta con = model2.getItem(c);
+            model2.excluir(con);
+            model2.movePcima(con, c - 1);
+            model2.setValores();
+            jTable2.getSelectionModel().setSelectionInterval(c - 1, c - 1);
+            bt_altSeqConsul.setEnabled(true);
+        }
     }//GEN-LAST:event_bt_movPcimaActionPerformed
 
     private void bt_movPbaixoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_movPbaixoActionPerformed
 
-    
-          
-            int c = jTable2.getSelectedRow();
-            int t = jTable2.getRowCount();
-            if (c < 0) {
-                JOptionPane.showMessageDialog(null, "Escolha uma consulta!");
-            } else if (c < t - 1) {
-                Consulta con = model2.getItem(c);
-                model2.excluir(con);
-                model2.movePcima(con, c + 1);
-                model2.setValores();
-                jTable2.getSelectionModel().setSelectionInterval(c + 1, c + 1);
-                bt_altSeqConsul.setEnabled(true);
+        int c = jTable2.getSelectedRow();
+        int t = jTable2.getRowCount();
+        if (c < 0) {
+            JOptionPane.showMessageDialog(null, "Escolha uma consulta!");
+        } else if (c < t - 1) {
+            Consulta con = model2.getItem(c);
+            model2.excluir(con);
+            model2.movePcima(con, c + 1);
+            model2.setValores();
+            jTable2.getSelectionModel().setSelectionInterval(c + 1, c + 1);
+            bt_altSeqConsul.setEnabled(true);
 
-            }
+        }
 
     }//GEN-LAST:event_bt_movPbaixoActionPerformed
 
@@ -761,24 +877,24 @@ try {
     }//GEN-LAST:event_bt_altSeqConsulActionPerformed
 
     private void jTable1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MousePressed
-       if (jTable1.isEnabled()) {
+        if (jTable1.isEnabled()) {
 
             if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 1) {
                 selecionado = jTable1.getSelectedRow();
             } else if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
                 editaConsulta();
                 selecionado = jTable1.getSelectedRow();
- 
-           }
+
+            }
         }
     }//GEN-LAST:event_jTable1MousePressed
 
     private void jMenuIt_AbertaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_AbertaActionPerformed
-       popupselsecionado(1);
+        popupselsecionado(1);
     }//GEN-LAST:event_jMenuIt_AbertaActionPerformed
 
     private void jMenuIt_EncerraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_EncerraActionPerformed
-         popupselsecionado(2);
+        popupselsecionado(2);
     }//GEN-LAST:event_jMenuIt_EncerraActionPerformed
 
     private void jMenuIt_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_CancelActionPerformed
@@ -790,12 +906,12 @@ try {
     }//GEN-LAST:event_jMenuIt_FaltouActionPerformed
 
     private void jMenuIt_ExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_ExcluirActionPerformed
-      jPMenu.setVisible(false);
-            delCosulta();
+        jPMenu.setVisible(false);
+        delCosulta();
     }//GEN-LAST:event_jMenuIt_ExcluirActionPerformed
 
     private void jMenuIt_historicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_historicoActionPerformed
-       buscConsulta();
+        buscConsulta();
     }//GEN-LAST:event_jMenuIt_historicoActionPerformed
 
     private void bt_data_proximaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_data_proximaActionPerformed
@@ -827,50 +943,42 @@ try {
         retorno.setVisible(true);
     }//GEN-LAST:event_jMenuIt_retornoActionPerformed
 
-    private void jMenuIt_ProcedimentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_ProcedimentoActionPerformed
-        Consulta con = model.getItem(jTable1.getSelectedRow());
-        MarcProcedimento pro = new MarcProcedimento(null, true);
-        pro.passaConsulta(con);
-        pro.setNomeClie(con.getPaciente().getNome());
-        pro.setVisible(true);
-    }//GEN-LAST:event_jMenuIt_ProcedimentoActionPerformed
-
     private void jTable2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable2MousePressed
-       if (jTable2.isEnabled()) {
+        if (jTable2.isEnabled()) {
 
             if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 1) {
                 selecionado2 = jTable2.getSelectedRow();
             } else if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
                 editaConsulta2();
                 selecionado2 = jTable2.getSelectedRow();
- 
-           }
+
+            }
         }
     }//GEN-LAST:event_jTable2MousePressed
 
     private void jMenuIt_addFilaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_addFilaActionPerformed
-            int sele = jTable1.getSelectedRow();
-            Consulta con = model.getItem(sele);
-            con.setFila(true);
-            con.setStatus(5);
-            model2.inserir(con);
-            model2.setValores();
-            salvaSeq();
-            
+        int sele = jTable1.getSelectedRow();
+        Consulta con = model.getItem(sele);
+        con.setFila(true);
+        con.setStatus(5);
+        model2.inserir(con);
+        model2.setValores();
+        salvaSeq();
+
         try {
-            buscaPorData(pegadataAtual(),1);
+            buscaPorData(pegadataAtual(), 1);
         } catch (ParseException ex) {
             Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
-            
+
     }//GEN-LAST:event_jMenuIt_addFilaActionPerformed
 
     private void jMenuIt_Encerra1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_Encerra1ActionPerformed
-   popupselsecionado2(2);
+        popupselsecionado2(2);
     }//GEN-LAST:event_jMenuIt_Encerra1ActionPerformed
 
     private void jMenuIt_Cancel1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_Cancel1ActionPerformed
-    popupselsecionado2(3);
+        popupselsecionado2(3);
     }//GEN-LAST:event_jMenuIt_Cancel1ActionPerformed
 
     private void jMenuIt_historico1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_historico1ActionPerformed
@@ -885,61 +993,59 @@ try {
         retorno.setVisible(true);
     }//GEN-LAST:event_jMenuIt_retorno1ActionPerformed
 
-    private void jMenuIt_Procedimento1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_Procedimento1ActionPerformed
-        Consulta con = model2.getItem(jTable2.getSelectedRow());
-        MarcProcedimento pro = new MarcProcedimento(null, true);
-        pro.passaConsulta(con);
-        pro.setNomeClie(con.getPaciente().getNome());
-        pro.setVisible(true);
-    }//GEN-LAST:event_jMenuIt_Procedimento1ActionPerformed
-
     private void jMenuIt_Excluir1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_Excluir1ActionPerformed
         jPMenu2.setVisible(false);
-            delCosulta2();
+        delCosulta2();
     }//GEN-LAST:event_jMenuIt_Excluir1ActionPerformed
 
     private void jMenuIt_RmFilaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_RmFilaActionPerformed
 
         int sele = jTable2.getSelectedRow();
-            Consulta con = model2.getItem(sele);
-            con.setFila(false);
-            con.setStatus(1);
-            ICadConsultasDAO dao = new CadConsultasDAO();
-            dao.altConsult(con);
+        Consulta con = model2.getItem(sele);
+        con.setFila(false);
+        con.setStatus(1);
+        ICadConsultasDAO dao = new CadConsultasDAO();
+        dao.altConsult(con);
         try {
-            buscaPorData(pegadataAtual(),1);
+            buscaPorData(pegadataAtual(), 1);
         } catch (ParseException ex) {
             Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jMenuIt_RmFilaActionPerformed
 
     private void bt_buscar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_buscar1ActionPerformed
-        // TODO add your handling code here:
+         ConsPorPaciente tela_busca = new ConsPorPaciente(null, true);
+        tela_busca.setVisible(true);
+        try {
+            buscaPorData(pegadataAtual(), 3);
+        } catch (ParseException ex) {
+            Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_bt_buscar1ActionPerformed
 
     private void bt_novo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_novo1ActionPerformed
-    try {                                        
+        try {
             CadConsultaModal telCadCons = new CadConsultaModal(null, true);
             telCadCons.estadoBotoes("novo");
             telCadCons.novoCad(pegadataAtual());
             telCadCons.setVisible(true);
-            buscaPorData(pegadataAtual(),2);
+            buscaPorData(pegadataAtual(), 2);
         } catch (ParseException ex) {
             Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_bt_novo1ActionPerformed
 
     private void bt_excluir1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_excluir1ActionPerformed
-    delCosulta2();
+        delCosulta2();
     }//GEN-LAST:event_bt_excluir1ActionPerformed
 
     private void bt_editar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_editar1ActionPerformed
-    editaConsulta2();
+        editaConsulta2();
 
     }//GEN-LAST:event_bt_editar1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-   dispose();
+        dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jMenuIt_EmConsulActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_EmConsulActionPerformed
@@ -947,16 +1053,102 @@ try {
     }//GEN-LAST:event_jMenuIt_EmConsulActionPerformed
 
     private void jMenuIt_AguardandoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_AguardandoActionPerformed
-       popupselsecionado2(5);
+        popupselsecionado2(5);
     }//GEN-LAST:event_jMenuIt_AguardandoActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            buscaPorData(pegadataAtual(),1);
+            buscaPorData(pegadataAtual(), 1);
         } catch (ParseException ex) {
             Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jMenuIt_verProcedimentosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_verProcedimentosActionPerformed
+        VerProcedimentosConsulta1 vpc = new VerProcedimentosConsulta1(null, true);
+        int consultaSelecionada = jTable1.getSelectedRow();
+        vpc.setConsulta(model.getItem(consultaSelecionada));
+        vpc.setVisible(true);
+    }//GEN-LAST:event_jMenuIt_verProcedimentosActionPerformed
+
+    private void jMenuIt_verProcedimentos1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_verProcedimentos1ActionPerformed
+        VerProcedimentosConsulta1 vpc = new VerProcedimentosConsulta1(null, true);
+        int consultaSelecionada = jTable2.getSelectedRow();
+        vpc.setConsulta(model2.getItem(consultaSelecionada));
+        vpc.setVisible(true);
+    }//GEN-LAST:event_jMenuIt_verProcedimentos1ActionPerformed
+
+    private void jMenuIt_ImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_ImprimirActionPerformed
+       
+                int conSele = jTable1.getSelectedRow();
+                if (conSele >= 0) {
+                    Consulta c = model.getItem(conSele);
+                    imprimirConsulta(c.getId(), conSele + 1);
+                }
+             
+    }//GEN-LAST:event_jMenuIt_ImprimirActionPerformed
+
+    private void jMenuIt_Imprimir1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_Imprimir1ActionPerformed
+       
+                int conSele = jTable2.getSelectedRow();
+                if (conSele >= 0) {
+                    Consulta c = model2.getItem(conSele);
+                    imprimirConsulta(c.getId(), conSele + 1);
+                }
+          
+    }//GEN-LAST:event_jMenuIt_Imprimir1ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        dispose();
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        int conSele = jTable2.getSelectedRow();
+        if (conSele >= 0) {
+            Consulta c = model2.getItem(conSele);
+            imprimirConsulta(c.getId(), conSele + 1);
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        VerProcedimentosConsulta1 vpc = new VerProcedimentosConsulta1(null, true);
+        int consultaSelecionada = jTable1.getSelectedRow();
+        if (consultaSelecionada >= 0) {
+            vpc.setConsulta(model.getItem(consultaSelecionada));
+            vpc.setVisible(true); 
+        }else{
+            JOptionPane.showMessageDialog(null, "Selecione uma consulta!");
+        }
+
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        VerProcedimentosConsulta1 vpc = new VerProcedimentosConsulta1(null, true);
+        int consultaSelecionada = jTable2.getSelectedRow();
+        if (consultaSelecionada >= 0) {
+        vpc.setConsulta(model2.getItem(consultaSelecionada));
+        vpc.setVisible(true);
+        }else{
+            JOptionPane.showMessageDialog(null, "Selecione uma consulta!");
+        }
+
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void tf_nomeTabela1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tf_nomeTabela1KeyReleased
+        try {
+            pesquisaTabela1();
+        } catch (ParseException ex) {
+            Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_tf_nomeTabela1KeyReleased
+
+    private void tf_nomeTabela2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tf_nomeTabela2KeyReleased
+         try {
+            pesquisaTabela2();
+        } catch (ParseException ex) {
+            Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_tf_nomeTabela2KeyReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_altSeqConsul;
@@ -975,8 +1167,14 @@ try {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jM_altStatus;
     private javax.swing.JMenu jM_altStatus1;
     private javax.swing.JMenuItem jMenuIt_Aberta;
@@ -989,14 +1187,16 @@ try {
     private javax.swing.JMenuItem jMenuIt_Excluir;
     private javax.swing.JMenuItem jMenuIt_Excluir1;
     private javax.swing.JMenuItem jMenuIt_Faltou;
-    private javax.swing.JMenuItem jMenuIt_Procedimento;
-    private javax.swing.JMenuItem jMenuIt_Procedimento1;
+    private javax.swing.JMenuItem jMenuIt_Imprimir;
+    private javax.swing.JMenuItem jMenuIt_Imprimir1;
     private javax.swing.JMenuItem jMenuIt_RmFila;
     private javax.swing.JMenuItem jMenuIt_addFila;
     private javax.swing.JMenuItem jMenuIt_historico;
     private javax.swing.JMenuItem jMenuIt_historico1;
     private javax.swing.JMenuItem jMenuIt_retorno;
     private javax.swing.JMenuItem jMenuIt_retorno1;
+    private javax.swing.JMenuItem jMenuIt_verProcedimentos;
+    private javax.swing.JMenuItem jMenuIt_verProcedimentos1;
     private javax.swing.JPopupMenu jPMenu;
     private javax.swing.JPopupMenu jPMenu2;
     private javax.swing.JPanel jPanel2;
@@ -1010,6 +1210,8 @@ try {
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private com.toedter.calendar.JDateChooser tf_dataConsul;
+    private javax.swing.JTextField tf_nomeTabela1;
+    private javax.swing.JTextField tf_nomeTabela2;
     // End of variables declaration//GEN-END:variables
  public final java.util.Date converte(String dataConsul) throws ParseException {
         DateFormat forma = new SimpleDateFormat("dd/MM/yyyy");
@@ -1018,152 +1220,153 @@ try {
         return dat;
     }
 
-   
- 
 //Altera o status no banco
     public void popupselsecionado(int status) {
         ICadConsultasDAO dao = new CadConsultasDAO();
         List<Consulta> con = new ArrayList<>();
-      
-                int c = jTable1.getSelectedRow();
-                if (c < 0) {
-                } else {
-                    con.clear();
-                    con.add(model.getItem(c));
-                    con.get(0).setStatus(status);
-                    model.alterar(c, con.get(0));
-                    jTable1.getSelectionModel().setSelectionInterval(c, c);
-                }
+
+        int c = jTable1.getSelectedRow();
+        if (c < 0) {
+        } else {
+            con.clear();
+            con.add(model.getItem(c));
+            con.get(0).setStatus(status);
+            model.alterar(c, con.get(0));
+            jTable1.getSelectionModel().setSelectionInterval(c, c);
+        }
         dao.altStatConsult(con);
     }
 
-      
-      //Altera o status no banco
+    //Altera o status no banco
     public void popupselsecionado2(int status) {
         ICadConsultasDAO dao = new CadConsultasDAO();
         List<Consulta> con = new ArrayList<>();
-      
-                int c = jTable2.getSelectedRow();
-                if (c < 0) {
-                } else {
-                    con.clear();
-                    con.add(model2.getItem(c));
-                    con.get(0).setStatus(status);
-                    model2.alterar(c, con.get(0));
-                    jTable2.getSelectionModel().setSelectionInterval(c, c);
-                }
+
+        int c = jTable2.getSelectedRow();
+        if (c < 0) {
+        } else {
+            con.clear();
+            con.add(model2.getItem(c));
+            con.get(0).setStatus(status);
+            model2.alterar(c, con.get(0));
+            jTable2.getSelectionModel().setSelectionInterval(c, c);
+        }
         dao.altStatConsult(con);
     }
-       
-      
-    
-private Date pegadataAtual() throws ParseException{
-     Date dataConve;
-     java.util.Date data_consul = tf_dataConsul.getDate();
-     String dataAtual = formato.format(data_consul);
-     dataConve = (Date) converte(dataAtual);
-    
-    return dataConve;
-    
-}
+
+    private Date pegadataAtual() throws ParseException {
+        Date dataConve;
+        java.util.Date data_consul = tf_dataConsul.getDate();
+        String dataAtual = formato.format(data_consul);
+        dataConve = (Date) converte(dataAtual);
+
+        return dataConve;
+
+    }
+
     private List<Consulta> buscaPorData(Date data, int sele) {
-        
+
         ArrayList<Consulta> consultas = new ArrayList();
         ArrayList<Consulta> consultasEmFila = new ArrayList();
-        
-            ICadConsultasDAO dao = new CadConsultasDAO();
-            Date dataConve = data;
-            for (Consulta consulta : dao.buscConsPdata(dataConve)) {
-                if (consulta.isFila()) {
-                     consultasEmFila.add(consulta);
-                    
-                }else{
-                   consultas.add(consulta);
-                }
-        }
-        
-            model.listar(consultas);
-            model2.listar(consultasEmFila);
+
+        ICadConsultasDAO dao = new CadConsultasDAO();
+        Date dataConve = data;
+        dao.buscConsPdata(dataConve).stream().forEach((consulta) -> {
+            if (consulta.isFila()) {
+                consultasEmFila.add(consulta);
+
+            } else {
+                consultas.add(consulta);
+            }
+        });
+
+        model.listar(consultas);
+        model2.listar(consultasEmFila);
 
         FormatacaoConteudo corNomes = new FormatacaoConteudo();
-        jTable1.getColumnModel().getColumn(5).setCellRenderer(corNomes);
-        jTable2.getColumnModel().getColumn(5).setCellRenderer(corNomes);
+        jTable1.getColumnModel().getColumn(4).setCellRenderer(corNomes);
+        jTable2.getColumnModel().getColumn(4).setCellRenderer(corNomes);
         switch (sele) {
             case 1:
-                 SlecionaPrimeiro();
-                 SlecionaPrimeiro2();
+                SlecionaPrimeiro();
+                SlecionaPrimeiro2();
                 break;
             case 2:
-                 SelecionaUltimo();
-                 SelecionaUltimo2();
+                SelecionaUltimo();
+                SelecionaUltimo2();
                 break;
-           case 3:
-                 Selecionado();
-                 Selecionado2();
+            case 3:
+                Selecionado();
+                Selecionado2();
                 break;
             default:
                 throw new AssertionError();
         }
-       
+
         return consultas;
     }
-    
-    public void SelecionaUltimo(){
-       
+
+    public void SelecionaUltimo() {
+
         int ultCad = jTable1.getRowCount();
         jTable1.getSelectionModel().setSelectionInterval(ultCad - 1, ultCad - 1);
         selecionado = ultCad - 1;
-        
-    } 
-    public void SelecionaUltimo2(){
-       
+
+    }
+
+    public void SelecionaUltimo2() {
+
         int ultCad = jTable2.getRowCount();
         jTable2.getSelectionModel().setSelectionInterval(ultCad - 1, ultCad - 1);
         selecionado2 = ultCad - 1;
-        
-    } 
-    public void Selecionado(){
-        
+
+    }
+
+    public void Selecionado() {
+
         Consulta c = model.getItem(selecionado);
-        if(c == null){
-             SlecionaPrimeiro();
-         }else{
-        jTable1.getSelectionModel().setSelectionInterval(selecionado, selecionado);
-    
+        if (c == null) {
+            SlecionaPrimeiro();
+        } else {
+            jTable1.getSelectionModel().setSelectionInterval(selecionado, selecionado);
+
         }
     }
-    public void Selecionado2(){
-        
+
+    public void Selecionado2() {
+
         Consulta c = model2.getItem(selecionado2);
-        if(c == null){
-             SlecionaPrimeiro();
-         }else{
-        jTable2.getSelectionModel().setSelectionInterval(selecionado2, selecionado2);
-    
+        if (c == null) {
+            SlecionaPrimeiro();
+        } else {
+            jTable2.getSelectionModel().setSelectionInterval(selecionado2, selecionado2);
+
         }
     }
-     public void SlecionaPrimeiro(){
-         int i = jTable1.getRowCount();
-         if (i > 0) {
-         jTable1.getSelectionModel().setSelectionInterval(0, 0);
-         selecionado = 0;
-         }
-        
+
+    public void SlecionaPrimeiro() {
+        int i = jTable1.getRowCount();
+        if (i > 0) {
+            jTable1.getSelectionModel().setSelectionInterval(0, 0);
+            selecionado = 0;
+        }
+
     }
-  
-      public void SlecionaPrimeiro2(){
-         int i = jTable2.getRowCount();
-         if (i > 0) {
-         jTable2.getSelectionModel().setSelectionInterval(0, 0);
-         selecionado2 = 0;
-         }
-        
+
+    public void SlecionaPrimeiro2() {
+        int i = jTable2.getRowCount();
+        if (i > 0) {
+            jTable2.getSelectionModel().setSelectionInterval(0, 0);
+            selecionado2 = 0;
+        }
+
     }
+
     //altera sequencias e status das consultas
     public void salvaSeq() {
         ICadConsultasDAO dao = new CadConsultasDAO();
-                List<Consulta> c = model2.lista();
-                dao.altSeqConsult(c);
+        List<Consulta> c = model2.lista();
+        dao.altSeqConsult(c);
     }
 
     private void buscConsulta() {
@@ -1172,149 +1375,197 @@ private Date pegadataAtual() throws ParseException{
         tela_busca.retornaiItemSelecionado(con.getPaciente().getId(), con.getPaciente().getNome());
         tela_busca.setVisible(true);
         try {
-                  buscaPorData(pegadataAtual(),3);
-            
+            buscaPorData(pegadataAtual(), 3);
+
         } catch (ParseException ex) {
             Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
+
     private void buscConsulta2() {
         ConsPorPaciente tela_busca = new ConsPorPaciente(null, true);
         Consulta con = model2.getItem(selecionado2);
         tela_busca.retornaiItemSelecionado(con.getPaciente().getId(), con.getPaciente().getNome());
         tela_busca.setVisible(true);
         try {
-                  buscaPorData(pegadataAtual(),3);
-            
+            buscaPorData(pegadataAtual(), 3);
+
         } catch (ParseException ex) {
             Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-    }
 
-    
+    }
 
     public void delCosulta() {
         int i = jTable1.getRowCount();
         if (i == 0) {
-        
-        }else{   
-        int opcao_escolhida = JOptionPane.showConfirmDialog(null, "Excluir consulta selecionada?", "Exclusão ", JOptionPane.YES_NO_OPTION, 3);
-        if (opcao_escolhida == JOptionPane.YES_OPTION) {
 
-            ICadConsultasDAO dao = new CadConsultasDAO();
-            Consulta con;   
-            int c = jTable1.getSelectedRow();
-            con = model.getItem(c);
-            dao.rmConsult(con.getId());
-            model.excluir(con);
-            SelecionaUltimo();      
-        }
+        } else {
+            int opcao_escolhida = JOptionPane.showConfirmDialog(null, "Excluir consulta selecionada?", "Exclusão ", JOptionPane.YES_NO_OPTION, 3);
+            if (opcao_escolhida == JOptionPane.YES_OPTION) {
+
+                CadConsultasDAO dao = new CadConsultasDAO();
+                Consulta con;
+                int c = jTable1.getSelectedRow();
+                con = model.getItem(c);
+                dao.removerConsultaProcedimento(dao.BuscaProcedimetoEmpresa("", 'e', con.getId()));
+                dao.rmConsult(con.getId());
+                model.excluir(con);
+                SelecionaUltimo();
+            }
         }
     }
-        
-     public void delCosulta2() {
+
+    public void delCosulta2() {
         int i = jTable2.getRowCount();
         if (i == 0) {
-        
-        }else{   
-        int opcao_escolhida = JOptionPane.showConfirmDialog(null, "Excluir consulta selecionada?", "Exclusão ", JOptionPane.YES_NO_OPTION, 3);
-        if (opcao_escolhida == JOptionPane.YES_OPTION) {
 
-            ICadConsultasDAO dao = new CadConsultasDAO();
-            Consulta con;   
-            int c = jTable2.getSelectedRow();
-            con = model2.getItem(c);
-            dao.rmConsult(con.getId());
-            model2.excluir(con);
-            SelecionaUltimo2();      
-        }
+        } else {
+            int opcao_escolhida = JOptionPane.showConfirmDialog(null, "Excluir consulta selecionada?", "Exclusão ", JOptionPane.YES_NO_OPTION, 3);
+            if (opcao_escolhida == JOptionPane.YES_OPTION) {
+
+                CadConsultasDAO dao = new CadConsultasDAO();
+                Consulta con;
+                int c = jTable2.getSelectedRow();
+                con = model2.getItem(c);
+                dao.removerConsultaProcedimento(dao.BuscaProcedimetoEmpresa("", 'e', con.getId()));
+                dao.rmConsult(con.getId());
+                model2.excluir(con);
+                SelecionaUltimo2();
+            }
         }
     }
 
-    
-    public void editaConsulta(){
-       if (jTable1.getRowCount()>0) { 
-         int sele = jTable1.getSelectedRow();
-         if (sele > -1) {
-         Consulta l = model.getItem(sele);
-         CadConsultaModal lig = new CadConsultaModal(null, true);
-         lig.mostra_dados(l);
-         lig.estadoBotoes("novo");
-         lig.mudaIserirAlt(1);
-         lig.setVisible(true);
-         try {
-            buscaPorData(pegadataAtual(),3);
-        } catch (ParseException ex) {
-            Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
-        }
-         }else {
+    public void editaConsulta() {
+        if (jTable1.getRowCount() > 0) {
+            int sele = jTable1.getSelectedRow();
+            if (sele > -1) {
+                Consulta l = model.getItem(sele);
+                CadConsultaModal lig = new CadConsultaModal(null, true);
+                lig.mostra_dados(l);
+                lig.estadoBotoes("novo");
+                lig.mudaIserirAlt(1);
+                lig.setVisible(true);
+                try {
+                    buscaPorData(pegadataAtual(), 3);
+                } catch (ParseException ex) {
+                    Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
                 JOptionPane.showMessageDialog(null, "Selecione uma Consulta!");
             }
-       }
-    }
-    
-    public void editaConsulta2(){
-       if (jTable2.getRowCount()>0) { 
-         int sele = jTable2.getSelectedRow();
-         if (sele > -1) {
-         Consulta l = model2.getItem(sele);
-         CadConsultaModal lig = new CadConsultaModal(null, true);
-         lig.mostra_dados(l);
-         lig.estadoBotoes("novo");
-         lig.mudaIserirAlt(1);
-         lig.setVisible(true);
-         try {
-            buscaPorData(pegadataAtual(),3);
-        } catch (ParseException ex) {
-            Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
         }
-         }else {
+    }
+
+    public void editaConsulta2() {
+        if (jTable2.getRowCount() > 0) {
+            int sele = jTable2.getSelectedRow();
+            if (sele > -1) {
+                Consulta l = model2.getItem(sele);
+                CadConsultaModal lig = new CadConsultaModal(null, true);
+                lig.mostra_dados(l);
+                lig.estadoBotoes("novo");
+                lig.mudaIserirAlt(1);
+                lig.setVisible(true);
+                try {
+                    buscaPorData(pegadataAtual(), 3);
+                } catch (ParseException ex) {
+                    Logger.getLogger(AgendaConsultas.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
                 JOptionPane.showMessageDialog(null, "Selecione uma Consulta!");
             }
-       }
+        }
     }
-        private void addpopup(){
-    jTable1.addMouseListener(new MouseAdapter() {
 
-              @Override
-              public void mouseClicked(MouseEvent e) {  
-        //Verificando se o botão direito foi pressionado  
-        if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0) {
-            jPMenu.show(jTable1, e.getX(), e.getY()); 
-        }
-              }
-    });
-    
-        
-         jTable2.addMouseListener(new MouseAdapter() {
+    private void addpopup() {
+        jTable1.addMouseListener(new MouseAdapter() {
 
-              @Override
-              public void mouseClicked(MouseEvent e) {  
-        //Verificando se o botão direito foi pressionado  
-        if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0) {
-            jPMenu2.show(jTable2, e.getX(), e.getY()); 
-        }
-              }
-    });
-        } 
-     private Date pegaProximaData() throws ParseException{
-     Date dataConve;
-     Calendar calendar = new GregorianCalendar();
-     calendar.setTime(pegadataAtual());  
-     calendar.add(Calendar.DAY_OF_MONTH, +1);  
-     dataConve = (Date) converte(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()));
-    return dataConve;
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //Verificando se o botão direito foi pressionado  
+                if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0) {
+                    jPMenu.show(jTable1, e.getX(), e.getY());
+                }
+            }
+        });
+
+        jTable2.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //Verificando se o botão direito foi pressionado  
+                if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) != 0) {
+                    jPMenu2.show(jTable2, e.getX(), e.getY());
+                }
+            }
+        });
+    }
+
+    private Date pegaProximaData() throws ParseException {
+        Date dataConve;
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(pegadataAtual());
+        calendar.add(Calendar.DAY_OF_MONTH, +1);
+        dataConve = (Date) converte(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()));
+        return dataConve;
+
+    }
+
+    private Date pegaDataAnterior() throws ParseException {
+        Date dataConve;
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(pegadataAtual());
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+        dataConve = (Date) converte(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()));
+        return dataConve;
+
+    }
+
+    private void imprimirConsulta(int inConsulta,int  sequencia) {
+        CadConsultasDAO dao = new CadConsultasDAO();
+        int opcao_escolhida = JOptionPane.showConfirmDialog(null, "Imprimir valor dos Exames", "Impressão ", JOptionPane.YES_NO_OPTION, 3);
+        final Progress p = new Progress();
+        p.setVisible(true);
+        SwingWorker worker = new SwingWorker() {
+            @Override
+            protected Object doInBackground() throws Exception {
+                if (opcao_escolhida == JOptionPane.YES_OPTION) {
+
+                    dao.imprimirContula(inConsulta, true,sequencia);
+                } else {
+                    dao.imprimirContula(inConsulta, false,sequencia);
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                p.setVisible(false);
+            }
+        };
+        worker.execute();
+    }
     
-}
-private Date pegaDataAnterior() throws ParseException{
-     Date dataConve;
-     Calendar calendar = new GregorianCalendar();
-     calendar.setTime(pegadataAtual());  
-    calendar.add(Calendar.DAY_OF_MONTH, -1);  
-     dataConve = (Date) converte(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()));
-    return dataConve;
     
-}
+     private void pesquisaTabela1() throws ParseException {
+        CadConsultasDAO dao = new CadConsultasDAO();
+     
+         List<Consulta>  consultas = dao.buscConsPdataEnome(pegadataAtual(),tf_nomeTabela1.getText() );
+         
+        model.listar(consultas);
+        jTable1.getSelectionModel().setSelectionInterval(0, 0);
+
+    }
+     
+    private void pesquisaTabela2() throws ParseException {
+        CadConsultasDAO dao = new CadConsultasDAO();
+     
+         List<Consulta>  consultas = dao.buscConsPdataEnomeNaFila(pegadataAtual(),tf_nomeTabela2.getText() );
+         
+        model2.listar(consultas);
+        jTable1.getSelectionModel().setSelectionInterval(0, 0);
+
+    }
 }

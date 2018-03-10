@@ -7,53 +7,45 @@ package br.com.markConsult.gui;
 
 import br.com.markConsult.Tetes.Utils;
 import br.com.markConsult.classesMetodos.AnamneseTableModel;
+import br.com.markConsult.classesMetodos.ArquivosProcedimentosTableModel;
+import br.com.markConsult.classesMetodos.ConsultaProcedimentosNoSeleTableModel;
+import br.com.markConsult.classesMetodos.DatasConsultasTableModel;
 import br.com.markConsult.classesMetodos.FixedLengthDocument;
-import br.com.markConsult.classesMetodos.ImagensTableModel;
 import br.com.markConsult.classesMetodos.IntegerDocument;
 import br.com.markConsult.classesMetodos.ReceitaTableModel;
-import br.com.markConsult.dao.CadAlbunsPacienteDAO;
 import br.com.markConsult.dao.CadAnamneseDAO;
+import br.com.markConsult.dao.CadConsultasDAO;
 import br.com.markConsult.dao.CadImagensPacienteDAO;
 import br.com.markConsult.dao.CadPacienteDAO;
 import br.com.markConsult.dao.CadReceitaDAO;
 import br.com.markConsult.dao.ICadPacienteDAO;
-import br.com.markConsult.dao.entidades.Album;
-import br.com.markConsult.dao.entidades.Anamnese;
-import br.com.markConsult.dao.entidades.Paciente;
-import br.com.markConsult.dao.entidades.Empresa;
-import br.com.markConsult.dao.entidades.ArquivosPaciente;
-import br.com.markConsult.dao.entidades.Receita;
-import br.com.markConsult.dao.entidades.Sessao;
-import br.com.markConsult.dao.entidades.Usuario;
-import br.com.markConsult.utils.ImagePreview;
-import java.awt.Graphics;
+import br.com.markConsult.entidades.Sessao;
+import br.com.markConsult.entidades.Anamnese;
+import br.com.markConsult.entidades.ArquivosProcedimento;
+import br.com.markConsult.entidades.Clinica;
+import br.com.markConsult.entidades.Consulta;
+import br.com.markConsult.entidades.ConsultaProcedimento;
+import br.com.markConsult.entidades.Paciente;
+import br.com.markConsult.entidades.Receita;
+import br.com.markConsult.entidades.Usuario;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import org.jdesktop.swingx.JXImagePanel;
 
 /**
  *
@@ -71,8 +63,10 @@ public class Ficha extends javax.swing.JInternalFrame {
     private int ins_alt = 0;
     private final AnamneseTableModel model;
     private final ReceitaTableModel model2;
-    private final ImagensTableModel model3;
-    JXImagePanel imagePanel;
+    private ConsultaProcedimentosNoSeleTableModel modelProcedimento;
+    private final DatasConsultasTableModel modelDatasConsultas;
+    private ArquivosProcedimentosTableModel modelArquivos;
+
     Paciente pacienteNaTela = null;
 
     /**
@@ -80,7 +74,14 @@ public class Ficha extends javax.swing.JInternalFrame {
      */
     public Ficha() {
         initComponents();
+        Usuario u = Sessao.getInstance().getUsuario();
 
+        if (u.isHeAtendente()) {
+            jp_botoes.setVisible(false);
+            //  bt_imprimir1.setVisible(true);
+        } else {
+            bt_imprimir1.setVisible(false);
+        }
         jProgressBar1.setIndeterminate(true);
         jProgressBar1.setVisible(false);
 
@@ -92,29 +93,21 @@ public class Ficha extends javax.swing.JInternalFrame {
 
         model = new AnamneseTableModel();
         model2 = new ReceitaTableModel();
-        model3 = new ImagensTableModel();
+        modelProcedimento = new ConsultaProcedimentosNoSeleTableModel();
+        modelDatasConsultas = new DatasConsultasTableModel();
+        modelArquivos = new ArquivosProcedimentosTableModel();
+
         jT_datas.setModel(model);
         jT_receituario.setModel(model2);
-
-        jT_imagens.setModel(model3);
+        jT_procedimentos.setModel(modelProcedimento);
+        jT_datasConsultas.setModel(modelDatasConsultas);
         tf_idPaciente.requestFocus();
-        
-        jT_imagens.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        jT_imagens.getColumnModel().getColumn(0).setMaxWidth(100);
-        jT_imagens.getColumnModel().getColumn(1).setPreferredWidth(200);
-        jT_imagens.getColumnModel().getColumn(2).setPreferredWidth(400);
-        
+        jT_arquivos.setModel(modelArquivos);
+
         try {
             confBanco.load(new FileInputStream("/markconsultas/banco.ini"));
         } catch (IOException ex) {
             Logger.getLogger(Ficha.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            URL url = this.getClass().getResource("/br/com/markconsult/imagens/image-multi-icon.png");
-            BufferedImage imagem = ImageIO.read(url);
-            jL_imagem.setIcon(new ImageIcon(imagem));
-        } catch (IOException ex1) {
-
         }
     }
 
@@ -156,19 +149,13 @@ public class Ficha extends javax.swing.JInternalFrame {
         jT_receituario = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
-        jT_imagens = new javax.swing.JTable();
-        bt_adicionarImg = new javax.swing.JButton();
-        bt_proximo = new javax.swing.JButton();
-        bt_anterior = new javax.swing.JButton();
-        bt_removerImg = new javax.swing.JButton();
+        jT_procedimentos = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
-        jL_imagem = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jC_albuns = new javax.swing.JComboBox();
-        jLabel9 = new javax.swing.JLabel();
-        tf_descAlbum = new javax.swing.JTextField();
-        jButton3 = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jT_datasConsultas = new javax.swing.JTable();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jT_arquivos = new javax.swing.JTable();
+        jp_botoes = new javax.swing.JPanel();
         bt_salvar = new javax.swing.JButton();
         bt_novo = new javax.swing.JButton();
         bt_excluir = new javax.swing.JButton();
@@ -177,6 +164,7 @@ public class Ficha extends javax.swing.JInternalFrame {
         bt_cancelar = new javax.swing.JButton();
         bt_imprimir = new javax.swing.JButton();
         jProgressBar1 = new javax.swing.JProgressBar();
+        bt_imprimir1 = new javax.swing.JButton();
 
         setClosable(true);
         setIconifiable(true);
@@ -298,6 +286,12 @@ public class Ficha extends javax.swing.JInternalFrame {
                     .addComponent(tf_cidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
+        jTPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTPanelMouseClicked(evt);
+            }
+        });
+
         tf_descricao.setColumns(20);
         tf_descricao.setRows(5);
         jScrollPane1.setViewportView(tf_descricao);
@@ -328,7 +322,7 @@ public class Ficha extends javax.swing.JInternalFrame {
             jPanel_fixaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_fixaLayout.createSequentialGroup()
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 814, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -338,7 +332,7 @@ public class Ficha extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(jPanel_fixaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -374,7 +368,7 @@ public class Ficha extends javax.swing.JInternalFrame {
             jPanel_receitaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_receitaLayout.createSequentialGroup()
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 814, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -384,13 +378,13 @@ public class Ficha extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(jPanel_receitaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane2)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE))
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
         jTPanel.addTab("Receituário", jPanel_receita);
 
-        jT_imagens.setModel(new javax.swing.table.DefaultTableModel(
+        jT_procedimentos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -398,45 +392,17 @@ public class Ficha extends javax.swing.JInternalFrame {
 
             }
         ));
-        jT_imagens.addMouseListener(new java.awt.event.MouseAdapter() {
+        jT_procedimentos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                jT_imagensMousePressed(evt);
+                jT_procedimentosMousePressed(evt);
             }
         });
-        jT_imagens.addKeyListener(new java.awt.event.KeyAdapter() {
+        jT_procedimentos.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jT_imagensKeyReleased(evt);
+                jT_procedimentosKeyReleased(evt);
             }
         });
-        jScrollPane6.setViewportView(jT_imagens);
-
-        bt_adicionarImg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/add-icon.png"))); // NOI18N
-        bt_adicionarImg.setText("Importar arquivos");
-        bt_adicionarImg.setToolTipText("Importar arquivos");
-        bt_adicionarImg.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bt_adicionarImgActionPerformed(evt);
-            }
-        });
-
-        bt_proximo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/navigate-right-icon2.png"))); // NOI18N
-        bt_proximo.setToolTipText("Proxima imagem");
-        bt_proximo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bt_proximoActionPerformed(evt);
-            }
-        });
-
-        bt_anterior.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/navigate-left-icon (1).png"))); // NOI18N
-        bt_anterior.setToolTipText("Imagem anterior");
-        bt_anterior.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bt_anteriorActionPerformed(evt);
-            }
-        });
-
-        bt_removerImg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/Action-remove-icon.png"))); // NOI18N
-        bt_removerImg.setToolTipText("Rmover Imagem");
+        jScrollPane6.setViewportView(jT_procedimentos);
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/picture-search-icon.png"))); // NOI18N
         jButton1.setToolTipText("Imagem maior");
@@ -446,103 +412,73 @@ public class Ficha extends javax.swing.JInternalFrame {
             }
         });
 
-        jL_imagem.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jL_imagem.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(204, 204, 204), 1, true));
+        jT_datasConsultas.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
 
-        jLabel2.setText("Pastas:");
+            },
+            new String [] {
 
-        jC_albuns.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
             }
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
-                jC_albunsPopupMenuWillBecomeInvisible(evt);
-            }
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
-            }
-        });
-
-        jLabel9.setText("Novo pasta:");
-
-        jButton3.setText("CRIAR");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+        ));
+        jT_datasConsultas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jT_datasConsultasMousePressed(evt);
             }
         });
+        jT_datasConsultas.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jT_datasConsultasKeyReleased(evt);
+            }
+        });
+        jScrollPane5.setViewportView(jT_datasConsultas);
+
+        jT_arquivos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jT_arquivos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jT_arquivosMouseClicked(evt);
+            }
+        });
+        jScrollPane7.setViewportView(jT_arquivos);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9))
-                        .addGap(10, 10, 10)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jC_albuns, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(bt_adicionarImg))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(tf_descAlbum)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton3))))
-                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(bt_anterior, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(bt_proximo, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(bt_removerImg, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(79, 79, 79))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(jL_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 404, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25))
         );
-
-        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {bt_anterior, bt_proximo, bt_removerImg, jButton1});
-
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jL_imagem, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(bt_proximo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(bt_anterior, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(bt_removerImg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(13, 13, 13)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel2)
-                                .addComponent(jC_albuns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(bt_adicionarImg, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton3)
-                            .addComponent(tf_descAlbum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE)
+                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTPanel.addTab("Imagens", jPanel2);
+        jTPanel.addTab("Exames / Imagens", jPanel2);
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        jp_botoes.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
         bt_salvar.setFont(new java.awt.Font("Ubuntu", 0, 10)); // NOI18N
         bt_salvar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/salvaIt.png"))); // NOI18N
@@ -603,22 +539,17 @@ public class Ficha extends javax.swing.JInternalFrame {
 
         bt_imprimir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/print.png"))); // NOI18N
         bt_imprimir.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Imprimir", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Arial", 0, 11))); // NOI18N
-        bt_imprimir.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                bt_imprimirMouseClicked(evt);
-            }
-        });
         bt_imprimir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bt_imprimirActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+        javax.swing.GroupLayout jp_botoesLayout = new javax.swing.GroupLayout(jp_botoes);
+        jp_botoes.setLayout(jp_botoesLayout);
+        jp_botoesLayout.setHorizontalGroup(
+            jp_botoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jp_botoesLayout.createSequentialGroup()
                 .addGap(0, 0, 0)
                 .addComponent(bt_novo, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
@@ -634,19 +565,33 @@ public class Ficha extends javax.swing.JInternalFrame {
                 .addGap(0, 0, 0)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+
+        jp_botoesLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {bt_cancelar, bt_editar, bt_excluir, bt_imprimir, bt_novo, bt_salvar, jButton2});
+
+        jp_botoesLayout.setVerticalGroup(
+            jp_botoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jp_botoesLayout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(bt_excluir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(bt_salvar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(bt_novo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(bt_editar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(bt_cancelar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(bt_imprimir, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                .addGroup(jp_botoesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(bt_cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bt_imprimir, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bt_editar, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bt_excluir, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bt_salvar, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bt_novo, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, 0))
         );
+
+        jp_botoesLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {bt_cancelar, bt_editar, bt_excluir, bt_imprimir, bt_novo, bt_salvar, jButton2});
+
+        bt_imprimir1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/print.png"))); // NOI18N
+        bt_imprimir1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Imprimir", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Arial", 0, 11))); // NOI18N
+        bt_imprimir1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_imprimir1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -657,24 +602,30 @@ public class Ficha extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jProgressBar1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jTPanel, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 918, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(142, 142, 142)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(140, 140, 140)
+                        .addComponent(jp_botoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bt_imprimir1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
+                .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(bt_imprimir1, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jp_botoes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -755,7 +706,7 @@ public class Ficha extends javax.swing.JInternalFrame {
                 }
                 CadReceitaDAO dao = new CadReceitaDAO();
 
-                Paciente cli = new Paciente(Integer.parseInt(idPaciente), null);
+                Paciente cli = new Paciente(Integer.parseInt(idPaciente), null, null);
                 if (ins_alt == 0) {
 
                     Receita receita = new Receita(null, cli, dt, tf_descriacao);
@@ -864,118 +815,9 @@ public class Ficha extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_bt_cancelarActionPerformed
 
-    private void bt_imprimirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_imprimirMouseClicked
-        //////cria o primeiro item do menu e atribui uma ação pra ele
-        ////        // JMenuItem item1 = new JMenuItem(“Opção 1″);
-        ////        JMenuItem item1 = new JMenuItem("Alterar status para Incluído");
-        ////        JMenuItem item2 = new JMenuItem("Alterar status para Pendente");
-        ////        JMenuItem item3 = new JMenuItem("Alterar status para Faturado");
-        ////        JMenuItem item4 = new JMenuItem("Imprimir Pedido");
-        ////
-        ////
-        ////        //cria o segundo item do menu e atribui uma ação pra ele
-        ////        // JMenuItem item2 = new JMenuItem(“Opção 2″);
-        ////
-        ////
-        ////        //cria o terceiro item do menu e atribui uma ação pra ele
-        ////        //JMenuItem item3 = new JMenuItem(“Opção 3″);
-        ////
-        ////
-        ////        //cria o menu popup e adiciona os 3 itens
-        ////        JPopupMenu popup = new JPopupMenu();
-        ////        popup.add(item1);
-        ////        popup.add(item2);
-        ////        popup.add(item3);
-        ////        popup.add(item4);
-        ////
-        ////        //mostra na tela
-        ////        popup.show(btAuxiliar, 10, 10);
-
-        //        item1.addMouseListener(new MouseAdapter() {
-        //            @Override
-        //            public void mousePressed(MouseEvent e) {
-        //                try {
-        //                    ICadPedidoDAO dao = new CadPedidoDAO();
-        //                    jF_dataModi.setText(data);
-        //                    dao.alterarStatus(Integer.parseInt(tf_idRota.getText()), 0, converte(jF_dataModi.getText()));
-        //                    buscaPedPoId(tf_idRota.getText());
-        //
-        //                } catch (ParseException ex) {
-        //                    Logger.getLogger(CadRotas.class.getName()).log(Level.SEVERE, null, ex);
-        //                }
-        //            }
-        //        });
-        //
-        //        item2.addMouseListener(new MouseAdapter() {
-        //            @Override
-        //            public void mousePressed(MouseEvent e) {
-        //                try {
-        //                    ICadPedidoDAO dao = new CadPedidoDAO();
-        //                    jF_dataModi.setText(data);
-        //                    dao.alterarStatus(Integer.parseInt(tf_idRota.getText()), 1, converte(jF_dataModi.getText()));
-        //                    buscaPedPoId(tf_idRota.getText());
-        //
-        //                } catch (ParseException ex) {
-        //                    Logger.getLogger(CadRotas.class.getName()).log(Level.SEVERE, null, ex);
-        //                }
-        //            }
-        //        });
-        //
-        //        item3.addMouseListener(new MouseAdapter() {
-        //            @Override
-        //            public void mousePressed(MouseEvent e) {
-        //                try {
-        //                    ICadPedidoDAO dao = new CadPedidoDAO();
-        //                    jF_dataModi.setText(data);
-        //                    dao.alterarStatus(Integer.parseInt(tf_idRota.getText()), 2, converte(jF_dataModi.getText()));
-        //                    buscaPedPoId(tf_idRota.getText());
-        //
-        //                } catch (ParseException ex) {
-        //                    Logger.getLogger(CadRotas.class.getName()).log(Level.SEVERE, null, ex);
-        //                }
-        //            }
-        //        });
-        //
-        //        jPMenu_bt_imprimir.show(btAuxiliar, 10, 10);
-        //        jMItem_bt_imprimir.addMouseListener(new MouseAdapter() {
-        //
-        //
-        //        });
-        //
-    }//GEN-LAST:event_bt_imprimirMouseClicked
-
     private void bt_imprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_imprimirActionPerformed
 
-        jProgressBar1.setVisible(true);
-        SwingWorker worker = new SwingWorker() {
-            @Override
-            protected Object doInBackground() throws Exception {
-                Usuario u = Sessao.getInstance().getUsuario();
-                Empresa e = Sessao.getInstance().getEmpresa();
-                if (jTPanel.getSelectedIndex() == 0) {
-                    if (jT_datas.getRowCount() > 0) {
-                        CadAnamneseDAO dao = new CadAnamneseDAO();
-                        Anamnese ana = model.getItem(jT_datas.getSelectedRow());
-                        dao.ConectRelatorio(ana.getId(), u.getId(), e.getId());
-                    }
-                } else {
-                    if (jT_receituario.getRowCount() > 0) {
-                        CadReceitaDAO dao = new CadReceitaDAO();
-                        Receita rec = model2.getItem(jT_receituario.getSelectedRow());
-                        dao.ConectRelatorio(rec.getId(), u.getId(), e.getId());
-                    }
-
-                }
-                return null;
-            }
-
-            @Override
-            protected void done() {
-
-                jProgressBar1.setVisible(false);
-            }
-        };
-        worker.execute();
+        imprimir();
 
 
     }//GEN-LAST:event_bt_imprimirActionPerformed
@@ -1004,151 +846,87 @@ public class Ficha extends javax.swing.JInternalFrame {
         bt_buscCli.requestFocus();
     }//GEN-LAST:event_tf_idPacienteActionPerformed
 
-    private void bt_proximoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_proximoActionPerformed
-        int imgSele = jT_imagens.getSelectedRow();
-
-        if (imgSele >= 0 && imgSele < jT_imagens.getRowCount() - 1) {
-            jT_imagens.getSelectionModel().setSelectionInterval(imgSele + 1, imgSele + 1);
-            buscaImagem();
-        }
-    }//GEN-LAST:event_bt_proximoActionPerformed
-
-    private void bt_anteriorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_anteriorActionPerformed
-        int imgSele = jT_imagens.getSelectedRow();
-
-        if (imgSele > 0) {
-            jT_imagens.getSelectionModel().setSelectionInterval(imgSele - 1, imgSele - 1);
-            buscaImagem();
-        }
-    }//GEN-LAST:event_bt_anteriorActionPerformed
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        VerImagens vi = new VerImagens(null, true);
-
-        ArrayList<Album> albuns = new ArrayList<>();
-        for (int i = 0; i < jC_albuns.getItemCount(); i++) {
-            if (i > 0) {
-                albuns.add((Album) jC_albuns.getItemAt(i));
+        int arquivoSelecionado = jT_arquivos.getSelectedRow();
+        if (arquivoSelecionado >= 0) {
+            ArquivosProcedimento arquivo = modelArquivos.getItem(arquivoSelecionado);
+            File f = new File(arquivo.getArquivo());
+            String ext = Utils.getExtension(f);
+            if (!ext.equals("jpeg") && !ext.equals("jpg") && !ext.equals("png")) {
+                abriArquivos();
+            } else {
+                List<ArquivosProcedimento> arquivos = modelArquivos.getProcedimentos();
+                VerImagens vi = new VerImagens(null, true);
+                vi.setaArquivos(arquivos, arquivo);
+                vi.setVisible(true);
             }
-
+        } else {
+            JOptionPane.showMessageDialog(null, "Selecione um arquivo!");
         }
-        vi.setAbuns(albuns, jC_albuns.getSelectedIndex());
-        vi.mostraImagens(model3.getLista(), jT_imagens.getSelectedRow());
-        vi.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jT_imagensKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jT_imagensKeyReleased
-        buscaImagem();
-    }//GEN-LAST:event_jT_imagensKeyReleased
+    private void jT_procedimentosKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jT_procedimentosKeyReleased
+        buscaArquivos();
+    }//GEN-LAST:event_jT_procedimentosKeyReleased
 
-    private void jT_imagensMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jT_imagensMousePressed
-        buscaImagem();
-    }//GEN-LAST:event_jT_imagensMousePressed
+    private void jT_procedimentosMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jT_procedimentosMousePressed
+        buscaArquivos();
 
-    private void bt_adicionarImgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_adicionarImgActionPerformed
+    }//GEN-LAST:event_jT_procedimentosMousePressed
 
-        JFileChooser jfc = new JFileChooser();
-        jfc.setDialogTitle("Importar arquivos");
-        jfc.setFileFilter(new FileNameExtensionFilter("Arquivos, jpg, gif, png, pdf, xls, xlsm, doc, docx, 3gp, mp4", "jpg", "jpeg", "gif", "png", "pdf", "xls","xlsm", "doc", "docx", "3gp", "mp4"));
-        jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        jfc.setAcceptAllFileFilterUsed(false);
-        jfc.setMultiSelectionEnabled(true);
-        jfc.setAccessory(new ImagePreview(jfc));
-        int retorno = jfc.showDialog(jfc, "Importar");
+    private void bt_imprimir1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_imprimir1ActionPerformed
+        imprimir();
+    }//GEN-LAST:event_bt_imprimir1ActionPerformed
 
-        if (retorno == JFileChooser.APPROVE_OPTION) {
-            final Progress p = new Progress();
-            p.setVisible(true);
-            SwingWorker worker = new SwingWorker() {
-                @Override
-                protected Object doInBackground() throws Exception {
-                    List<File> imgSele = Arrays.asList(jfc.getSelectedFiles());
-                    for (File imgSele1 : imgSele) {
-                        if (accept(imgSele1)) {
-                            criarDiretorio(imgSele1);
+    private void jT_datasConsultasMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jT_datasConsultasMousePressed
+        mostraProcedimentos();
+    }//GEN-LAST:event_jT_datasConsultasMousePressed
 
-                        } else {
-                            JOptionPane.showMessageDialog(null, "O arquivo " + imgSele1.getName() + "é inválido!");
-                        }
-                    }
-                    return null;
-                }
+    private void jT_datasConsultasKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jT_datasConsultasKeyReleased
+        mostraProcedimentos();
+    }//GEN-LAST:event_jT_datasConsultasKeyReleased
 
-                @Override
-                protected void done() {
-
-                    p.setVisible(false);
-                }
-            };
-            worker.execute();
-
-        }
-    }//GEN-LAST:event_bt_adicionarImgActionPerformed
-
-    private void jC_albunsPopupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_jC_albunsPopupMenuWillBecomeInvisible
-
-        if (jC_albuns.getSelectedIndex() != 0 && jC_albuns.getSelectedItem() != null) {
-            CadImagensPacienteDAO dao = new CadImagensPacienteDAO();
-            Album a = (Album) jC_albuns.getSelectedItem();
-            List<ArquivosPaciente> lp = dao.buscaImagensPaciente(a);
-            mostraImagens(lp);
-        } else {
-            model3.limpaLista();
-            try {
-                URL url = this.getClass().getResource("/br/com/markconsult/imagens/image-multi-icon.png");
-                BufferedImage imagem = ImageIO.read(url);
-                jL_imagem.setIcon(new ImageIcon(imagem));
-            } catch (IOException ex1) {
-
+    private void jT_arquivosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jT_arquivosMouseClicked
+        if (jT_arquivos.isEnabled()) {
+            if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 1) {
+                //buscaArquivos();
+            } else if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
+                abriArquivos();
             }
         }
+    }//GEN-LAST:event_jT_arquivosMouseClicked
 
+    private void jTPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTPanelMouseClicked
+        int panelSelecionado = jTPanel.getSelectedIndex();
 
-    }//GEN-LAST:event_jC_albunsPopupMenuWillBecomeInvisible
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        String descAlbum = tf_descAlbum.getText();
-        if (!descAlbum.equals("")) {
-            Paciente p = new Paciente();
-            String idPaciente = tf_idPaciente.getText();
-            p.setId(Integer.parseInt(idPaciente));
-            CadAlbunsPacienteDAO dao = new CadAlbunsPacienteDAO();
-            Album ab = new Album(null, p, descAlbum);
-            dao.inseAlbum(ab);
-            buscaAbunsPaciente(p);
-            JOptionPane.showMessageDialog(null, "Album criado com sucesso!");
+        if (panelSelecionado == 2) {
+            jp_botoes.setVisible(false);
+        } else {
+            jp_botoes.setVisible(true);
         }
-    }//GEN-LAST:event_jButton3ActionPerformed
+
+    }//GEN-LAST:event_jTPanelMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton bt_adicionarImg;
-    private javax.swing.JButton bt_anterior;
     private javax.swing.JButton bt_buscCli;
     private javax.swing.JButton bt_cancelar;
     private javax.swing.JButton bt_editar;
     private javax.swing.JButton bt_excluir;
     private javax.swing.JButton bt_imprimir;
+    private javax.swing.JButton bt_imprimir1;
     private javax.swing.JButton bt_novo;
-    private javax.swing.JButton bt_proximo;
-    private javax.swing.JButton bt_removerImg;
     private javax.swing.JButton bt_salvar;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox jC_albuns;
-    private javax.swing.JLabel jL_imagem;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel_fixa;
     private javax.swing.JPanel jPanel_receita;
     private javax.swing.JProgressBar jProgressBar1;
@@ -1156,15 +934,19 @@ public class Ficha extends javax.swing.JInternalFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JTabbedPane jTPanel;
+    private javax.swing.JTable jT_arquivos;
     private javax.swing.JTable jT_datas;
-    private javax.swing.JTable jT_imagens;
+    private javax.swing.JTable jT_datasConsultas;
+    private javax.swing.JTable jT_procedimentos;
     private javax.swing.JTable jT_receituario;
+    private javax.swing.JPanel jp_botoes;
     private javax.swing.JTextField tf_cidade;
     private javax.swing.JTextField tf_dataAtual;
     private javax.swing.JFormattedTextField tf_dataNasc;
-    private javax.swing.JTextField tf_descAlbum;
     private javax.swing.JTextArea tf_descricao;
     private javax.swing.JTextArea tf_descricao1;
     private javax.swing.JTextField tf_fone;
@@ -1205,7 +987,7 @@ public void telaBuscaClient() {
             tf_cidade.setText(p.getCep().getCidade());
             mostra_fixas();
             mostra_reiceitas();
-            buscaAbunsPaciente(p);
+            mostraArquivos();
 
         } else {
             pacienteNaTela = null;
@@ -1249,6 +1031,16 @@ public void telaBuscaClient() {
         }
     }
 
+    private void mostraArquivos() {
+        CadConsultasDAO dao = new CadConsultasDAO();
+        List<Consulta> con = dao.buscaConsultasPorIdPaciente(pacienteNaTela);
+        modelDatasConsultas.listar(con);
+        limpaTabelasProcedimentosEarquivos();
+    }
+    private void limpaTabelasProcedimentosEarquivos(){
+        modelProcedimento.limparTabela();
+        modelArquivos.limparTabela();
+    }
     public void mostra_ana(Anamnese ana) {
         tf_descricao.setText(ana.getDescricao());
     }
@@ -1412,7 +1204,7 @@ public void telaBuscaClient() {
     public void buscaClient(String id) {
         ICadPacienteDAO dao = new CadPacienteDAO();
 
-        Paciente client = dao.buscClientPid(Integer.parseInt(id));
+        Paciente client = dao.buscaPacientePorId(Integer.parseInt(id));
         if (client != null) {
             mostra_paciente(client);
 
@@ -1424,213 +1216,84 @@ public void telaBuscaClient() {
 
     }
 
-    private void mostraImagens(List<ArquivosPaciente> imp) {
-        if (!imp.isEmpty()) {
-
-            model3.listar(imp);
-            jT_imagens.getSelectionModel().setSelectionInterval(0, 0);
-            buscaImagem();
-
-        } else {
-            model3.limpaLista();
-        }
-    }
-
-    private void mostraImagem(BufferedImage imagem) {
-        if (imagem != null) {
-            try {
-                ImageIcon jpg = new ImageIcon(redimenImagem(imagem, 314, 235));
-                jL_imagem.setIcon(jpg);
-            } catch (IOException ex) {
-                Logger.getLogger(VerImagens.class.getName()).log(Level.SEVERE, null, ex);
+    private void buscaArquivos() {
+        int procedimentoSelecionado = jT_procedimentos.getSelectedRow();
+        if (procedimentoSelecionado >= 0) {
+            ConsultaProcedimento cp = modelProcedimento.getItem(procedimentoSelecionado);
+            CadImagensPacienteDAO dao = new CadImagensPacienteDAO();
+            List<ArquivosProcedimento> ap = dao.buscaArquivosProcedimento(cp);
+            if (!ap.isEmpty()) {
+                modelArquivos.listar(ap);
+            } else {
+                modelArquivos.limparTabela();
             }
         }
     }
 
-    public static BufferedImage redimenImagem(BufferedImage imagem, Integer imgLargura, Integer imgAltura) throws IOException {
-
-        Double novaImgLargura = (double) imagem.getWidth();
-        Double novaImgAltura = (double) imagem.getHeight();
-        Double imgProporcao;
-        if (novaImgLargura >= imgLargura) {
-            imgProporcao = (novaImgAltura / novaImgLargura);
-            novaImgLargura = (double) imgLargura;
-            novaImgAltura = (novaImgLargura * imgProporcao);
-            while (novaImgAltura > imgAltura) {
-                novaImgLargura = (double) (--imgLargura);
-                novaImgAltura = (novaImgLargura * imgProporcao);
-            }
-        } else if (novaImgAltura >= imgAltura) {
-            imgProporcao = (novaImgLargura / novaImgAltura);
-            novaImgAltura = (double) imgAltura;
-            while (novaImgLargura > imgLargura) {
-                novaImgAltura = (double) (--imgAltura);
-                novaImgLargura = (novaImgAltura * imgProporcao);
-            }
-        }
-        BufferedImage novaImagem = new BufferedImage(novaImgLargura.intValue(), novaImgAltura.intValue(), BufferedImage.TYPE_INT_RGB);
-        Graphics g = novaImagem.getGraphics();
-        g.drawImage(imagem.getScaledInstance(novaImgLargura.intValue(), novaImgAltura.intValue(), 10000), 0, 0, null);
-        g.dispose();
-        return novaImagem;
-
-    }
-
-    private void buscaImagem() {
+    private void abriArquivos() {
         try {
-            int sele = jT_imagens.getSelectedRow();
+            int sele = jT_arquivos.getSelectedRow();
             if (sele < 0) {
                 return;
             }
-            
-            ArquivosPaciente imp = model3.getItem(sele);
-            
-                
-            
-            Album abAlbum = (Album) jC_albuns.getSelectedItem();
-            File arquivo = new File(confBanco.getProperty("ip") + imp.getPaciente().getId() + "/" + abAlbum.getId() + "/" + imp.getImagem());
-            String ext = Utils.getExtension(arquivo);
-            if (ext.equals("pdf") || ext.equals("3gp")) {
-            java.awt.Desktop.getDesktop().open(arquivo.getAbsoluteFile());
-            }else{
-            BufferedImage imagem = ImageIO.read(arquivo); //carrega a imagem real num buffer
-            mostraImagem(imagem);
+
+            ArquivosProcedimento imp = modelArquivos.getItem(sele);
+            File arquivo = new File(confBanco.getProperty("ip") + imp.getConsultaProcedimento().getId() + "/" + imp.getArquivo());
+            if (Files.exists(arquivo.toPath())) {
+                java.awt.Desktop.getDesktop().open(arquivo.getAbsoluteFile());
+            } else {
+                JOptionPane.showMessageDialog(null, "Arquivo não encontrado");
             }
 
         } catch (IOException ex) {
-            try {
-                URL url = this.getClass().getResource("/br/com/markconsult/imagens/naoEncontada.png");
-                BufferedImage imagem = ImageIO.read(url);
-                mostraImagem(imagem);
-            } catch (IOException ex1) {
-
-            }
+            JOptionPane.showMessageDialog(null, "Erro abrindo arquivo");
         }
     }
 
-    private void buscaAbunsPaciente(Paciente p) {
-        CadAlbunsPacienteDAO daoAbuns = new CadAlbunsPacienteDAO();
-        List<Album> albuns = daoAbuns.buscaAlbum(p);
-        jC_albuns.removeAllItems();
-        jC_albuns.addItem("Selecione");
-        if (!albuns.isEmpty()) {
-            albuns.stream().forEach((albun) -> {
-                jC_albuns.addItem(albun);
-            });
-        }
-    }
-
-    public boolean accept(File f) {
-        if (f.isDirectory()) {
-            return true;
-        }
-
-        String extension = Utils.getExtension(f);
-        if (extension != null) 
-        {
-            if (extension.equals(Utils.gif)
-                    || extension.equals(Utils.jpeg)
-                    || extension.equals(Utils.jpg)
-                    || extension.equals(Utils.png)
-                    || extension.equals(Utils.pdf)
-                    || extension.equals(Utils.xls)
-                    || extension.equals(Utils.xlsm)
-                    || extension.equals(Utils.doc)
-                    || extension.equals(Utils.docx)
-                    || extension.equals(Utils.mp4)
-                    || extension.equals(Utils.gp)) {
-                return true;
-            } 
-        }
-
-        return false;
-    }
-
-    public void criarDiretorio(File file) {
-        try {
-            // File arquivo = new File(confBanco.getProperty("ip")+imp.getPaciente().getId()+"/"+imp.getImagem());
-            Album abAlbum = (Album) jC_albuns.getSelectedItem();
-
-            File diretorio = new File(confBanco.getProperty("ip") + pacienteNaTela.getId() + "/" + abAlbum.getId() + "/");
-            String endImgem = diretorio.toString() + "/" + file.getName();
-            if (!diretorio.exists()) {
-                diretorio.mkdirs();
-            }
-
-            salvaImagem(file, 800, 600, endImgem);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao criar o diretorio");
-            System.out.println(ex);
-        }
-    }
-
-    public void salvaImagem(File file, Integer imgLargura, Integer imgAltura, String endImgem) throws IOException {
-        String extencao = Utils.getExtension(file);
-        if (extencao.equals("jpg") || extencao.equals("png") || extencao.equals("gif")) {
-            BufferedImage imagem = ImageIO.read(file);
-            Double novaImgLargura = (double) imagem.getWidth();
-            Double novaImgAltura = (double) imagem.getHeight();
-            Double imgProporcao;
-            if (novaImgLargura >= imgLargura) {
-                imgProporcao = (novaImgAltura / novaImgLargura);
-                novaImgLargura = (double) imgLargura;
-                novaImgAltura = (novaImgLargura * imgProporcao);
-                while (novaImgAltura > imgAltura) {
-                    novaImgLargura = (double) (--imgLargura);
-                    novaImgAltura = (novaImgLargura * imgProporcao);
-                }
-            } else if (novaImgAltura >= imgAltura) {
-                imgProporcao = (novaImgLargura / novaImgAltura);
-                novaImgAltura = (double) imgAltura;
-                while (novaImgLargura > imgLargura) {
-                    novaImgAltura = (double) (--imgAltura);
-                    novaImgLargura = (novaImgAltura * imgProporcao);
-                }
-            }
-            BufferedImage novaImagem = new BufferedImage(novaImgLargura.intValue(), novaImgAltura.intValue(), BufferedImage.TYPE_INT_RGB);
-            Graphics g = novaImagem.getGraphics();
-            g.drawImage(imagem.getScaledInstance(novaImgLargura.intValue(), novaImgAltura.intValue(), 10000), 0, 0, null);
-            g.dispose();
-
-            ImageIO.write(novaImagem, Utils.getExtension(file), new File(endImgem));
-            salvarDadoArquivo(file.getName());
-        }else{
-            try {
-                if (endImgem != null) {
-                    if (Files.exists(new File(endImgem).toPath())) {
-                        int opcao_escolhida = JOptionPane.showConfirmDialog(null, 
-                                "Na pasta já existe um arquivo "+"\""+file.getName()+"\""+" desaja substitui-lo?", "Importar", 
-                                JOptionPane.YES_NO_OPTION);
-                        if (opcao_escolhida == JOptionPane.YES_OPTION) {
-                            Files.delete(new File(endImgem).toPath());
-                            Files.copy(file.toPath(),
-                                    Paths.get(endImgem));
-                            salvarDadoArquivo(file.getName());
-                        }
-                    } else {
-                        Files.copy(file.toPath(),
-                            Paths.get(endImgem));
-                            salvarDadoArquivo(file.getName());
+    private void imprimir() {
+        jProgressBar1.setVisible(true);
+        SwingWorker worker = new SwingWorker() {
+            @Override
+            protected Object doInBackground() throws Exception {
+                Usuario u = Sessao.getInstance().getUsuario();
+                Clinica e = Sessao.getInstance().getClinica();
+                if (jTPanel.getSelectedIndex() == 0) {
+                    if (jT_datas.getRowCount() > 0) {
+                        CadAnamneseDAO dao = new CadAnamneseDAO();
+                        Anamnese ana = model.getItem(jT_datas.getSelectedRow());
+                        dao.ConectRelatorio(ana.getId(), u.getId(), e.getId());
                     }
-                }
-            } catch (IOException ex) {
-                //Logger.getLogger(CadMinhaEmpresa.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-    
-    private void salvarDadoArquivo(String nomeArquivo){
-        Date dt = null;
-                            try {
-                                dt = (Date) converte(data);
-                            } catch (ParseException ex) {
-                                Logger.getLogger(CadConsultaModal.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                } else {
+                    if (jT_receituario.getRowCount() > 0) {
+                        CadReceitaDAO dao = new CadReceitaDAO();
+                        Receita rec = model2.getItem(jT_receituario.getSelectedRow());
+                        dao.ConectRelatorio(rec.getId(), u.getId(), e.getId());
+                    }
 
-                            CadImagensPacienteDAO dao = new CadImagensPacienteDAO();
-                            Album abAlbum = (Album) jC_albuns.getSelectedItem();
-                            ArquivosPaciente imp = new ArquivosPaciente(null, pacienteNaTela, dt, "", nomeArquivo, abAlbum);
-                            dao.inseImagensPaciente(imp);
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+
+                jProgressBar1.setVisible(false);
+            }
+        };
+        worker.execute();
+    }
+
+    private void mostraProcedimentos() {
+        CadConsultasDAO dao = new CadConsultasDAO();
+        int consultaSelecionada = jT_datasConsultas.getSelectedRow();
+        Consulta con = modelDatasConsultas.getItem(consultaSelecionada);
+        List<ConsultaProcedimento> procedimentos = dao.BuscaProcedimetoEmpresa("", 'e', con.getId());
+        if (!procedimentos.isEmpty()) {
+            modelProcedimento.listar(procedimentos);
+        } else {
+            modelProcedimento.limparTabela();
+        }
+        modelArquivos.limparTabela();
     }
 
 }

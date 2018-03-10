@@ -9,9 +9,7 @@ package br.com.markConsult.classesMetodos;
 
 
 
-import br.com.markConsult.dao.entidades.ArquivosPaciente;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import br.com.markConsult.entidades.ArquivosPaciente;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
@@ -25,7 +23,7 @@ import javax.swing.table.AbstractTableModel;
  * @author jeferson
  */
 public class ImagensTableModel extends AbstractTableModel{
-     NumberFormat nf = new DecimalFormat("#,##0.00");
+    
 //constantes que vão representar as colunas
 
      private final int COL_DATA = 0;

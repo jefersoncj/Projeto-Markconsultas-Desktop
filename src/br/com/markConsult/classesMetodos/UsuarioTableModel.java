@@ -6,7 +6,7 @@ package br.com.markConsult.classesMetodos;
  */
 
 
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Usuario;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;

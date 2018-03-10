@@ -4,7 +4,7 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Convenio;
+import br.com.markConsult.entidades.Convenio;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,11 +39,7 @@ public class CadConvenioDAO extends AbstractConecxaoDAO {
 	/**
 	 * @uml.property  name="convenio"
 	 */
-	private List<Convenio> convenios = new ArrayList<>();
-
-
-	
-    
+	private final List<Convenio> convenios = new ArrayList<>();
         
               public Integer inserir(Convenio convenio) {
     
@@ -54,36 +50,25 @@ public class CadConvenioDAO extends AbstractConecxaoDAO {
 			// pegar a connection
 			connection = getConnection();
 			beginTransaction(connection);
-			// GERAR O ID UNICO
-			String selectMaxID = "SELECT MAX(id) AS maxID FROM convenios";
-
-			int maxID = 0;
-                        
-
-			// criar o statement
-			pstm = connection.prepareStatement(selectMaxID);
-			rs = pstm.executeQuery();
-			while (rs.next()) {
-				maxID = rs.getInt(1);
-			}
-
 			// criar o sql
-			String sql = "INSERT INTO convenios VALUES ( ?, ?, ?)";
+			String sql = "INSERT INTO convenios (ds_convenio, valor)VALUES (?, ?)";
 
 			// criar o statement
-			pstm = connection.prepareStatement(sql);
+			 pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
 			// setar os params
 			int index = 0;
-			pstm.setInt(++index, ++maxID);
 			pstm.setString(++index, convenio.getDsConvenio());
 			pstm.setDouble(++index, convenio.getValorConv());
-			
-			
-			pstm.execute();
-
+                        
+                        pstm.executeUpdate();
+                        rs = pstm.getGeneratedKeys();
+                        int id = 0;
+                        if (rs.next()) {
+                            id = rs.getInt(1);
+                        }
 			commitTransaction(connection);
-			idInserido = maxID;
+			idInserido = id;
 			
 		} catch (Exception e) {
 			

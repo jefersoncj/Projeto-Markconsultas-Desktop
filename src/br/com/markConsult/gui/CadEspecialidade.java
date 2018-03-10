@@ -7,7 +7,7 @@ package br.com.markConsult.gui;
 import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.IntegerDocument;
 import br.com.markConsult.dao.CadEspecialiDAO;
-import br.com.markConsult.dao.entidades.Especialidade;
+import br.com.markConsult.entidades.Especialidade;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 
@@ -314,9 +314,9 @@ int inserir_alterar = 0;
             CadEspecialiDAO dao = new CadEspecialiDAO();
             Especialidade med = new Especialidade(id, especiali);
             dao.alterar(med);
-
+            inserir_alterar = 0;
         }
-        inserir_alterar = 0;
+        
 
         estadoBotoes("salvar");
     }//GEN-LAST:event_bt_salvarActionPerformed
@@ -517,7 +517,7 @@ public void buscaPorId(String id) {
 }
 
 public void telBuscEsp(){
-     BuscEspecialidades b = new BuscEspecialidades(null, true);
+     BuscaEspecialidades b = new BuscaEspecialidades(null, true);
       b.setVisible(true);
         if (b.okselecionado()) {
             Especialidade m = b.retornEspSele();

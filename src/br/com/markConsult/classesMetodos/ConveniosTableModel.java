@@ -6,7 +6,7 @@ package br.com.markConsult.classesMetodos;
  */
 
 
-import br.com.markConsult.dao.entidades.Convenio;
+import br.com.markConsult.entidades.Convenio;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;

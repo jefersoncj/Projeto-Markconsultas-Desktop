@@ -4,7 +4,7 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Procedimento;
+import br.com.markConsult.entidades.Procedimento;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,12 +39,7 @@ public class CadProcedimentoDAO extends AbstractConecxaoDAO {
 	/**
 	 * @uml.property  name="procedimento"
 	 */
-	private List<Procedimento> procedimentos = new ArrayList<>();
-
-
-	
-    
-        
+	private final List<Procedimento> procedimentos = new ArrayList<>();
               public Integer inserir(Procedimento procedimento) {
     
 		Connection connection = null;
@@ -55,35 +50,24 @@ public class CadProcedimentoDAO extends AbstractConecxaoDAO {
 			connection = getConnection();
 			beginTransaction(connection);
 			// GERAR O ID UNICO
-			String selectMaxID = "SELECT MAX(id) AS maxID FROM procedimento";
-
-			int maxID = 0;
-                        
-
-			// criar o statement
-			pstm = connection.prepareStatement(selectMaxID);
-			rs = pstm.executeQuery();
-			while (rs.next()) {
-				maxID = rs.getInt(1);
-			}
 
 			// criar o sql
-			String sql = "INSERT INTO procedimento VALUES ( ?, ?, ?)";
+			String sql = "INSERT INTO procedimento (ds_procedimento) VALUES ( ?)";
 
 			// criar o statement
-			pstm = connection.prepareStatement(sql);
+                        pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
 			// setar os params
 			int index = 0;
-			pstm.setInt(++index, ++maxID);
 			pstm.setString(++index, procedimento.getDsProcedimento());
-			pstm.setDouble(++index, procedimento.getValorProced());
-			
-			
-			pstm.execute();
-
+			pstm.executeUpdate();
+                        rs = pstm.getGeneratedKeys();
+                        int id = 0;
+                        if (rs.next()) {
+                            id = rs.getInt(1);
+                        }
 			commitTransaction(connection);
-			idInserido = maxID;
+			idInserido = id;
 			
 		} catch (Exception e) {
 			
@@ -110,14 +94,13 @@ public class CadProcedimentoDAO extends AbstractConecxaoDAO {
 			connection = getConnection();
 			beginTransaction(connection);
 			// criar o sql
-			String sql = "UPDATE procedimento SET ds_procedimento = ?, valor = ? WHERE id = ?";
+			String sql = "UPDATE procedimento SET ds_procedimento = ? WHERE id = ?";
 
 			// criar o statement
 			pstm = connection.prepareStatement(sql);
 			// setar os params
 			int index = 0;
 			pstm.setString(++index, procedimento.getDsProcedimento());
-			pstm.setDouble(++index, procedimento.getValorProced());
                         pstm.setInt(++index, procedimento.getId());
 
 			// executar
@@ -140,8 +123,6 @@ public class CadProcedimentoDAO extends AbstractConecxaoDAO {
     
     
     }
-
-        
 
         public boolean remover(Integer id) {
                 boolean excluido = false;
@@ -398,12 +379,11 @@ public class CadProcedimentoDAO extends AbstractConecxaoDAO {
               Procedimento conv = null;
               if (rs != null) {
                   
-                  Procedimento con = new Procedimento(rs.getInt("id"), rs.getString("ds_procedimento"), rs.getDouble("valor"));
+                  Procedimento con = new Procedimento(rs.getInt("id"), rs.getString("ds_procedimento"));
                   conv = con;
               }
               
             return conv;
-          }
-     
+          }    
                 
 }

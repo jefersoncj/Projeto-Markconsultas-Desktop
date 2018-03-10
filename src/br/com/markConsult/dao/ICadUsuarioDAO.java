@@ -4,7 +4,7 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Usuario;
 
 /**
  *

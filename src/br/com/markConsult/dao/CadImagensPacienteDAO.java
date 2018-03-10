@@ -4,9 +4,11 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Album;
-import br.com.markConsult.dao.entidades.Paciente;
-import br.com.markConsult.dao.entidades.ArquivosPaciente;
+import br.com.markConsult.entidades.Album;
+import br.com.markConsult.entidades.ArquivosPaciente;
+import br.com.markConsult.entidades.ArquivosProcedimento;
+import br.com.markConsult.entidades.ConsultaProcedimento;
+import br.com.markConsult.entidades.Paciente;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,6 +42,7 @@ public class CadImagensPacienteDAO extends AbstractConecxaoDAO{
     }
    
     private final ArrayList<ArquivosPaciente> imagensPacientes = new ArrayList<>();
+    private final ArrayList<ArquivosProcedimento> arquivosProcedimentos = new ArrayList<>();
    
     public Integer inseImagensPaciente(ArquivosPaciente imp){
         Connection connection = null;
@@ -86,7 +89,50 @@ public class CadImagensPacienteDAO extends AbstractConecxaoDAO{
         }
         return idInserido;
     }
+public Integer inserirArquivoProcedimento(ArquivosProcedimento ap){
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            // pegar a connection
+            connection = getConnection();
+            beginTransaction(connection);
+            // GERAR O ID UNICO
+            
 
+            // criar o sql
+            String sql = "INSERT INTO procedimento_arquivo (id_procedimento, data_cadastro, obs, arquivo)VALUES (?, ?, ?, ?)";
+                // criar o statement
+                pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+                
+                int index = 0;
+                pstm.setInt(++index, ap.getConsultaProcedimento().getId());
+                pstm.setDate(++index, ap.getDataCadastro());
+                pstm.setString(++index, ap.getObservacao());
+                pstm.setString(++index, ap.getArquivo());
+                
+            // executar
+                pstm.executeUpdate();
+               rs = pstm.getGeneratedKeys();  
+                 int id = 0;  
+                if(rs.next()){  
+                  id = rs.getInt(1);  
+                 }
+            commitTransaction(connection);
+            idInserido = id;
+
+        } catch (Exception e) {
+
+            try {
+                rollbackTransaction(connection);
+            } catch (SQLException e1) {
+                throw new IllegalStateException();
+            }
+        } finally {
+            cleanup(rs, pstm, connection);
+        }
+        return idInserido;
+    }
 
    
     public boolean rmImagensPaciente(int id) {
@@ -99,7 +145,7 @@ public class CadImagensPacienteDAO extends AbstractConecxaoDAO{
             connection = getConnection();
             beginTransaction(connection);
 
-            String sql = "delete from pacientes where id = ?";
+            String sql = "delete from imagens_pacientes where id = ?";
 
             pstm = connection.prepareStatement(sql);
             pstm.setInt(1, id);
@@ -158,7 +204,74 @@ public class CadImagensPacienteDAO extends AbstractConecxaoDAO{
         }
         return imagensPacientes;
     }
+  public List<ArquivosProcedimento> buscaArquivosProcedimento(ConsultaProcedimento cp) {
+        ArquivosProcedimento ip;
+        Connection connection = null;
+        Statement stm = null;
+        ResultSet rs = null;
+      
+        try {
+            // pegar a connection
+            connection = getConnection();
+            beginTransaction(connection);
 
+
+            // CRIAR SQL
+            String sql = "SELECT * FROM procedimento_arquivo WHERE id_procedimento = '" +cp.getId()+ "' ";
+
+            // criar o statement
+            stm = connection.createStatement();
+            rs = stm.executeQuery(sql);
+            while (rs.next()) {
+               
+                ip = RetornObArquivoProcedimento(rs);
+
+                arquivosProcedimentos.add(ip);
+
+
+            }
+
+
+        } catch (Exception e) {
+            try {
+                rollbackTransaction(connection);
+            } catch (SQLException e1) {
+                throw new IllegalStateException();
+            }
+        } finally {
+            cleanup(rs, stm, connection);
+        }
+        return arquivosProcedimentos;
+    }
+  
+      public boolean rmArquivoProcedimento(int id) {
+        boolean excluido = false;
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            // pegar a connection
+            connection = getConnection();
+            beginTransaction(connection);
+
+            String sql = "delete from procedimento_arquivo where id = ?";
+
+            pstm = connection.prepareStatement(sql);
+            pstm.setInt(1, id);
+            pstm.execute();
+            commitTransaction(connection);
+            excluido = true;
+        } catch (Exception e) {
+            try {
+                rollbackTransaction(connection);
+            } catch (SQLException e1) {
+                throw new IllegalStateException();
+            }
+        } finally {
+            cleanup(rs, pstm, connection);
+        }
+        return excluido;
+    }
     public ArquivosPaciente RetornObImagemPaciente(ResultSet rs) throws SQLException {
         ArquivosPaciente ip;
        
@@ -169,6 +282,14 @@ public class CadImagensPacienteDAO extends AbstractConecxaoDAO{
         ip = new  ArquivosPaciente(rs.getInt("id"), p, rs.getDate("data_cadastro"), rs.getString("obs"),rs.getString("imagem"),ab);
        
 
+        
+        return ip;
+    }
+    public ArquivosProcedimento RetornObArquivoProcedimento(ResultSet rs) throws SQLException {
+        ArquivosProcedimento ip;
+        ConsultaProcedimento ab = new ConsultaProcedimento();
+        ab.setId(rs.getInt("id_procedimento"));
+        ip = new  ArquivosProcedimento(rs.getInt("id"), ab, rs.getDate("data_cadastro"), rs.getString("obs"),rs.getString("arquivo"));
         
         return ip;
     }

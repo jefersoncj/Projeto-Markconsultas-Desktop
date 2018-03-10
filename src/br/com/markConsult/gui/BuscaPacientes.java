@@ -9,7 +9,9 @@ import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.PacienteTableModel;
 import br.com.markConsult.dao.CadPacienteDAO;
 import br.com.markConsult.dao.ICadPacienteDAO;
-import br.com.markConsult.dao.entidades.Paciente;
+import br.com.markConsult.entidades.Paciente;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
@@ -17,8 +19,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
@@ -71,6 +77,18 @@ public class BuscaPacientes extends javax.swing.JInternalFrame {
         }); 
         
          tf_dado.requestFocus();
+         
+        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+
+        Action escapeAction = new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE", escapeAction);
     }
 
     /**
@@ -297,7 +315,7 @@ public class BuscaPacientes extends javax.swing.JInternalFrame {
                 telCadCons.estadoBotoes("novo");
                 telCadCons.novoCad(converte(data));
                 telCadCons.setPaciente(c);
-                telCadCons.buscaClient();
+                telCadCons.buscaPaciente();
                 telCadCons.setVisible(true);
             }else{
                 JOptionPane.showMessageDialog(null,"Selecione um Paciente!");

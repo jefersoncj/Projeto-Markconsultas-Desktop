@@ -7,7 +7,7 @@ package br.com.markConsult.classesMetodos;
 
 
 
-import br.com.markConsult.dao.entidades.Anamnese;
+import br.com.markConsult.entidades.Anamnese;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;

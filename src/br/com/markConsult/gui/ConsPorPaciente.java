@@ -9,9 +9,12 @@ import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.FormatacaoConteudo;
 import br.com.markConsult.dao.CadConsultasDAO;
 import br.com.markConsult.dao.ICadConsultasDAO;
-import br.com.markConsult.dao.entidades.Consulta;
+import br.com.markConsult.entidades.Consulta;
+import br.com.markConsult.entidades.Paciente;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
@@ -21,7 +24,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -86,7 +93,17 @@ public class ConsPorPaciente extends javax.swing.JDialog {
                 int ordenacao = mColIndex; //criei esta váriavel ordenacao;  
             }  
         }); 
-      
+        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+
+        Action escapeAction = new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE", escapeAction);
        jC_status.setSelectedIndex(6);
        tf_dado.requestFocus();
     }
@@ -108,8 +125,8 @@ public class ConsPorPaciente extends javax.swing.JDialog {
         jMenuIt_Faltou = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuIt_retorno = new javax.swing.JMenuItem();
-        jMenuIt_Procedimento = new javax.swing.JMenuItem();
         jMenuIt_NovaCon = new javax.swing.JMenuItem();
+        jMenuIt_verProcedimentos = new javax.swing.JMenuItem();
         bt_sair = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTConsultas = new javax.swing.JTable();
@@ -121,6 +138,7 @@ public class ConsPorPaciente extends javax.swing.JDialog {
         jLabel4 = new javax.swing.JLabel();
         tf_dado = new javax.swing.JFormattedTextField();
         cbx_complete = new java.awt.Checkbox();
+        jButton1 = new javax.swing.JButton();
 
         jM_altStatus.setText("Alterar status");
 
@@ -167,14 +185,6 @@ public class ConsPorPaciente extends javax.swing.JDialog {
         });
         jPMenu.add(jMenuIt_retorno);
 
-        jMenuIt_Procedimento.setText("Marcar Procedimento");
-        jMenuIt_Procedimento.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuIt_ProcedimentoActionPerformed(evt);
-            }
-        });
-        jPMenu.add(jMenuIt_Procedimento);
-
         jMenuIt_NovaCon.setText("Nova Consulta");
         jMenuIt_NovaCon.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -182,6 +192,14 @@ public class ConsPorPaciente extends javax.swing.JDialog {
             }
         });
         jPMenu.add(jMenuIt_NovaCon);
+
+        jMenuIt_verProcedimentos.setText("Ver procedimento");
+        jMenuIt_verProcedimentos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuIt_verProcedimentosActionPerformed(evt);
+            }
+        });
+        jPMenu.add(jMenuIt_verProcedimentos);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Consultas");
@@ -197,13 +215,10 @@ public class ConsPorPaciente extends javax.swing.JDialog {
 
         jTConsultas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+
             }
         ));
         jTConsultas.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -297,6 +312,13 @@ public class ConsPorPaciente extends javax.swing.JDialog {
         cbx_complete.setLabel("Auto Complete");
         cbx_complete.setState(true);
 
+        jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -307,6 +329,8 @@ public class ConsPorPaciente extends javax.swing.JDialog {
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(cbx_complete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(89, 89, 89)
+                        .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(bt_sair))
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -321,7 +345,9 @@ public class ConsPorPaciente extends javax.swing.JDialog {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(bt_sair)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(bt_sair)
+                        .addComponent(jButton1))
                     .addComponent(cbx_complete, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(10, 10, 10))
         );
@@ -360,8 +386,12 @@ public class ConsPorPaciente extends javax.swing.JDialog {
     }//GEN-LAST:event_tf_dadoKeyReleased
 
     private void jTConsultasMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTConsultasMousePressed
-        int s = jTConsultas.getSelectedRow();
-      
+          if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 1) {
+              
+            } else if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
+               verProcedimento();
+ 
+          }
     }//GEN-LAST:event_jTConsultasMousePressed
 
     private void jMenuIt_AbertaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_AbertaActionPerformed
@@ -397,18 +427,6 @@ public class ConsPorPaciente extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_jMenuIt_retornoActionPerformed
 
-    private void jMenuIt_ProcedimentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_ProcedimentoActionPerformed
-        int consultaSelecionada = jTConsultas.getSelectedRow();
-        if (consultaSelecionada >= 0) {
-        consultaSelecionada = jTConsultas.convertRowIndexToModel(consultaSelecionada);
-        Consulta con = model.getItem(consultaSelecionada);
-        MarcProcedimento pro = new MarcProcedimento(null, true);
-        pro.passaConsulta(con);
-        pro.setNomeClie(con.getPaciente().getNome());
-        pro.setVisible(true);
-        }
-    }//GEN-LAST:event_jMenuIt_ProcedimentoActionPerformed
-
     private void jC_statusPopupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_jC_statusPopupMenuWillBecomeInvisible
         pesqPstatus();
     }//GEN-LAST:event_jC_statusPopupMenuWillBecomeInvisible
@@ -423,7 +441,7 @@ public class ConsPorPaciente extends javax.swing.JDialog {
                telCadCons.estadoBotoes("novo");
                telCadCons.novoCad(converte(data));
                telCadCons.setPaciente(c.getPaciente());
-               telCadCons.buscaClient();
+               telCadCons.buscaPaciente();
                telCadCons.setVisible(true);
                pesquisa();
            }
@@ -432,6 +450,16 @@ public class ConsPorPaciente extends javax.swing.JDialog {
            System.out.println("erro ao marcar nova consulta");
         }
     }//GEN-LAST:event_jMenuIt_NovaConActionPerformed
+
+    private void jMenuIt_verProcedimentosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_verProcedimentosActionPerformed
+       verProcedimento();
+    }//GEN-LAST:event_jMenuIt_verProcedimentosActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       CadConsultasDAO dao = new CadConsultasDAO();
+       List<Paciente> p = dao.buscaPacienteAtualiza();
+       dao.altearAtualiza(p);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -475,6 +503,7 @@ public class ConsPorPaciente extends javax.swing.JDialog {
     private javax.swing.JButton bt_sair;
     private javax.swing.JComboBox cb_campo;
     private java.awt.Checkbox cbx_complete;
+    private javax.swing.JButton jButton1;
     private javax.swing.JComboBox jC_status;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -484,8 +513,8 @@ public class ConsPorPaciente extends javax.swing.JDialog {
     private javax.swing.JMenuItem jMenuIt_Encerra;
     private javax.swing.JMenuItem jMenuIt_Faltou;
     private javax.swing.JMenuItem jMenuIt_NovaCon;
-    private javax.swing.JMenuItem jMenuIt_Procedimento;
     private javax.swing.JMenuItem jMenuIt_retorno;
+    private javax.swing.JMenuItem jMenuIt_verProcedimentos;
     private javax.swing.JPopupMenu jPMenu;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
@@ -629,5 +658,12 @@ public Date converte(String dataNasc) throws ParseException {
                     jTConsultas.getSelectionModel().setSelectionInterval(c, c);
                 }
         dao.altStatConsult(con);
+    }
+
+    private void verProcedimento() {
+        VerProcedimentosConsulta1 vpc = new VerProcedimentosConsulta1(null, true);
+        int consultaSelecionada = jTConsultas.getSelectedRow();
+        vpc.setConsulta(model.getItem(consultaSelecionada));
+        vpc.setVisible(true);
     }
 }

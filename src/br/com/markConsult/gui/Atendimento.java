@@ -4,11 +4,11 @@
  */
 package br.com.markConsult.gui;
 
-import br.com.markConsult.classesMetodos.ConsPcliTableModel;
+import br.com.markConsult.classesMetodos.ConsAtendimentoTableModel;
 import br.com.markConsult.classesMetodos.FormatacaoConteudo;
 import br.com.markConsult.dao.CadConsultasDAO;
 import br.com.markConsult.dao.ICadConsultasDAO;
-import br.com.markConsult.dao.entidades.Consulta;
+import br.com.markConsult.entidades.Consulta;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
@@ -33,7 +33,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class Atendimento extends javax.swing.JInternalFrame {
 
     List<Consulta> consultas;
-    private final ConsPcliTableModel model;
+    private final ConsAtendimentoTableModel model;
     
     String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date(System.currentTimeMillis())));
     SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
@@ -48,26 +48,23 @@ public class Atendimento extends javax.swing.JInternalFrame {
         addpopup();
         Date dt = (Date) converte(data);
         tf_dataConsul.setDate(dt);
-        model = new ConsPcliTableModel();
+        model = new ConsAtendimentoTableModel();
         jTConsultas.setModel(model);
         jTConsultas.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
          ajusTabela();
         FormatacaoConteudo corNomes = new FormatacaoConteudo();
-        jTConsultas.getColumnModel().getColumn(7).setCellRenderer(corNomes);
+        jTConsultas.getColumnModel().getColumn(5).setCellRenderer(corNomes);
         //addPopup(jTConsultas);
         
         
         jTConsultas.getSelectionModel().setSelectionInterval(0, 0);
         
-         tf_dataConsul.addPropertyChangeListener(new java.beans.PropertyChangeListener() {//GERA A AÇÃO PRA TROCA DE PROPRIEDADE  
-            @Override
-            
-            public void propertyChange(java.beans.PropertyChangeEvent evt) { //GERA EVENTO  
-
-                   pesqPstatus();    
-                    
-                }     
-        });
+         tf_dataConsul.addPropertyChangeListener((java.beans.PropertyChangeEvent evt) -> {
+             //GERA EVENTO
+             
+             pesqPstatus();
+        } //GERA A AÇÃO PRA TROCA DE PROPRIEDADE
+        );
          
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -96,6 +93,7 @@ public class Atendimento extends javax.swing.JInternalFrame {
         jMenuIt_EmConsult = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuIt_historico = new javax.swing.JMenuItem();
+        jMenuIt_verProcedimentos = new javax.swing.JMenuItem();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTConsultas = new javax.swing.JTable();
         bt_sair = new javax.swing.JButton();
@@ -145,13 +143,22 @@ public class Atendimento extends javax.swing.JInternalFrame {
         jPMenu.add(jM_altStatus);
         jPMenu.add(jSeparator1);
 
-        jMenuIt_historico.setText("Ver historico do Cliente");
+        jMenuIt_historico.setText("Ver histórico do Paciente");
+        jMenuIt_historico.setActionCommand("Ver historico do Paciente");
         jMenuIt_historico.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuIt_historicoActionPerformed(evt);
             }
         });
         jPMenu.add(jMenuIt_historico);
+
+        jMenuIt_verProcedimentos.setText("Ver procedimento");
+        jMenuIt_verProcedimentos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuIt_verProcedimentosActionPerformed(evt);
+            }
+        });
+        jPMenu.add(jMenuIt_verProcedimentos);
 
         setClosable(true);
         setIconifiable(true);
@@ -160,13 +167,10 @@ public class Atendimento extends javax.swing.JInternalFrame {
 
         jTConsultas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+
             }
         ));
         jTConsultas.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -309,9 +313,7 @@ public class Atendimento extends javax.swing.JInternalFrame {
                 f.buscaClient(""+id_paciente);
                 f.setVisible(true);
  
-           }
-        
-      
+          }
        
     }//GEN-LAST:event_jTConsultasMousePressed
 
@@ -360,6 +362,13 @@ public class Atendimento extends javax.swing.JInternalFrame {
        popupselsecionado(6);
     }//GEN-LAST:event_jMenuIt_EmConsultActionPerformed
 
+    private void jMenuIt_verProcedimentosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_verProcedimentosActionPerformed
+        VerProcedimentosConsulta1 vpc = new VerProcedimentosConsulta1(null, true);
+        int consultaSelecionada = jTConsultas.getSelectedRow();
+        vpc.setConsulta(model.getItem(consultaSelecionada));
+        vpc.setVisible(true);
+    }//GEN-LAST:event_jMenuIt_verProcedimentosActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_data_anterior;
     private javax.swing.JButton bt_data_proxima;
@@ -374,6 +383,7 @@ public class Atendimento extends javax.swing.JInternalFrame {
     private javax.swing.JMenuItem jMenuIt_EmConsult;
     private javax.swing.JMenuItem jMenuIt_Encerra;
     private javax.swing.JMenuItem jMenuIt_historico;
+    private javax.swing.JMenuItem jMenuIt_verProcedimentos;
     private javax.swing.JPopupMenu jPMenu;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
@@ -486,14 +496,11 @@ public void buscConsultsPid(int id) {
          jTConsultas.getColumnModel().getColumn(1).setPreferredWidth(200);
         jTConsultas.getColumnModel().getColumn(2).setPreferredWidth(140);
         jTConsultas.getColumnModel().getColumn(3).setPreferredWidth(120);
-        jTConsultas.getColumnModel().getColumn(4).setPreferredWidth(60);
-        jTConsultas.getColumnModel().getColumn(4).setCellRenderer(direita);
+        jTConsultas.getColumnModel().getColumn(4).setPreferredWidth(100);
         jTConsultas.getColumnModel().getColumn(5).setPreferredWidth(100);
         jTConsultas.getColumnModel().getColumn(6).setPreferredWidth(100);
-        jTConsultas.getColumnModel().getColumn(7).setPreferredWidth(100);
-        jTConsultas.getColumnModel().getColumn(8).setPreferredWidth(100);
-        jTConsultas.getColumnModel().getColumn(9).setPreferredWidth(200);
-        jTConsultas.getColumnModel().getColumn(10).setPreferredWidth(1000);
+        jTConsultas.getColumnModel().getColumn(7).setPreferredWidth(200);
+        jTConsultas.getColumnModel().getColumn(8).setPreferredWidth(1000);
     }
     
      public final java.util.Date converte(String dataConsul) throws ParseException {

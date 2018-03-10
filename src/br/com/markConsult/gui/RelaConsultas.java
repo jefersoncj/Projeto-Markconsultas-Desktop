@@ -5,12 +5,13 @@
 package br.com.markConsult.gui;
 
 import br.com.markConsult.dao.CadConsultasDAO;
-import br.com.markConsult.dao.entidades.Paciente;
-import br.com.markConsult.dao.entidades.CondPagto;
-import br.com.markConsult.dao.entidades.Convenio;
-import br.com.markConsult.dao.entidades.Empresa;
-import br.com.markConsult.dao.entidades.Sessao;
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Sessao;
+import br.com.markConsult.entidades.Clinica;
+import br.com.markConsult.entidades.CondPagto;
+import br.com.markConsult.entidades.Convenio;
+import br.com.markConsult.entidades.Empresa;
+import br.com.markConsult.entidades.Paciente;
+import br.com.markConsult.entidades.Usuario;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,6 +21,7 @@ import java.util.GregorianCalendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
 import javax.swing.SwingWorker;
 
 /**
@@ -27,6 +29,7 @@ import javax.swing.SwingWorker;
  * @author jeferson
  */
 public class RelaConsultas extends javax.swing.JInternalFrame {
+private String empresa;
 private String paciente;
 private String usuario;
 private String conve;
@@ -82,11 +85,18 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
         jLabel1 = new javax.swing.JLabel();
         cb_conv = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
-        cb_condPagt = new javax.swing.JComboBox();
         jLabel7 = new javax.swing.JLabel();
-        cb_ordem = new javax.swing.JComboBox();
         jLabel8 = new javax.swing.JLabel();
         cb_medico = new javax.swing.JComboBox();
+        jLabel9 = new javax.swing.JLabel();
+        cb_emprea = new javax.swing.JComboBox();
+        cb_ordem = new javax.swing.JComboBox();
+        cb_condPagt = new javax.swing.JComboBox();
+        tf_medico = new javax.swing.JTextField();
+        tf_empresa = new javax.swing.JTextField();
+        tf_paciente = new javax.swing.JTextField();
+        tf_convenio = new javax.swing.JTextField();
+        tf_condpgto = new javax.swing.JTextField();
         bt_cancelar = new javax.swing.JButton();
         bt_gerar = new javax.swing.JButton();
 
@@ -125,16 +135,7 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
 
         jLabel2.setText("Cond. Pagto:");
 
-        cb_condPagt.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Todos", "Selecionar" }));
-        cb_condPagt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cb_condPagtActionPerformed(evt);
-            }
-        });
-
         jLabel7.setText("Ordenação:");
-
-        cb_ordem.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Data Consulta", "Paciente", "Convênio", "Cond. Pagto.", "Status" }));
 
         jLabel8.setText("Médico:");
 
@@ -145,78 +146,117 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
             }
         });
 
+        jLabel9.setText("Empresa:");
+
+        cb_emprea.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Todos", "Selecionar" }));
+        cb_emprea.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cb_empreaActionPerformed(evt);
+            }
+        });
+
+        cb_ordem.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Data Consulta", "Paciente", "Convênio", "Cond. Pagto.", "Status" }));
+
+        cb_condPagt.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Todos", "Selecionar" }));
+        cb_condPagt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cb_condPagtActionPerformed(evt);
+            }
+        });
+
+        tf_medico.setEditable(false);
+
+        tf_empresa.setEditable(false);
+
+        tf_paciente.setEditable(false);
+
+        tf_convenio.setEditable(false);
+
+        tf_condpgto.setEditable(false);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel7)
-                                    .addComponent(jLabel8))
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(cb_condPagt, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cb_conv, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cb_paciente, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cb_medico, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cb_emprea, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(tf_dataIni, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(cb_condPagt, 0, 147, Short.MAX_VALUE)
-                                .addComponent(tf_dataIni, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
-                                .addComponent(cb_paciente, 0, 147, Short.MAX_VALUE)
-                                .addComponent(cb_stat, 0, 147, Short.MAX_VALUE)
-                                .addComponent(cb_conv, 0, 147, Short.MAX_VALUE)
-                                .addComponent(cb_ordem, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(cb_medico, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(11, 11, 11)
-                        .addComponent(tf_dataFin, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(tf_dataFin, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 249, Short.MAX_VALUE))
+                            .addComponent(tf_medico)
+                            .addComponent(tf_empresa, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(tf_paciente, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(tf_convenio, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(tf_condpgto)))
+                    .addComponent(cb_stat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cb_ordem, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tf_dataIni, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(tf_dataIni, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tf_dataFin, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tf_dataFin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(cb_emprea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tf_empresa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
-                    .addComponent(cb_medico, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cb_medico, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tf_medico, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(cb_paciente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cb_stat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
+                    .addComponent(cb_paciente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tf_paciente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(cb_conv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cb_conv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tf_convenio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
                     .addComponent(cb_condPagt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                    .addComponent(tf_condpgto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(cb_ordem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cb_stat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cb_ordem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7)))
         );
 
         bt_cancelar.setText("Cancelar");
@@ -238,27 +278,26 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(133, 133, 133)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(bt_cancelar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(bt_gerar, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bt_gerar, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bt_cancelar)
                     .addComponent(bt_gerar))
-                .addContainerGap())
+                .addGap(10, 10, 10))
         );
 
         pack();
@@ -269,6 +308,8 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
         if (sele == 1) {
             cb_paciente.setPopupVisible(false);
             telaBuscaClient();
+        }else{
+            tf_paciente.setText("");
         }
 
     }//GEN-LAST:event_cb_pacienteActionPerformed
@@ -278,6 +319,8 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
         if (sele == 1) {
             cb_conv.setPopupVisible(false);
             telBuscaConvenio();
+        }else{
+            tf_convenio.setText("");
         }
     }//GEN-LAST:event_cb_convActionPerformed
 
@@ -286,6 +329,8 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
         if (sele == 1) {
             cb_condPagt.setPopupVisible(false);
             telBuscaConpagt();
+        }else{
+            tf_condpgto.setText("");
         }
     }//GEN-LAST:event_cb_condPagtActionPerformed
 
@@ -294,6 +339,8 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
         if (sele == 1) {
             cb_medico.setPopupVisible(false);
             telabuscMedicos();
+        }else{
+            tf_medico.setText("");
         }
     }//GEN-LAST:event_cb_medicoActionPerformed
 
@@ -319,11 +366,22 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
 
     }//GEN-LAST:event_bt_gerarActionPerformed
 
+    private void cb_empreaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cb_empreaActionPerformed
+        int sele = cb_emprea.getSelectedIndex();
+        if (sele == 1) {
+            cb_emprea.setPopupVisible(false);
+            telBuscaEmpresa();
+        }else{
+            tf_empresa.setText("");
+        }
+    }//GEN-LAST:event_cb_empreaActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_cancelar;
     private javax.swing.JButton bt_gerar;
     private javax.swing.JComboBox cb_condPagt;
     private javax.swing.JComboBox cb_conv;
+    private javax.swing.JComboBox cb_emprea;
     private javax.swing.JComboBox cb_medico;
     private javax.swing.JComboBox cb_ordem;
     private javax.swing.JComboBox cb_paciente;
@@ -336,9 +394,15 @@ private String data = (new java.text.SimpleDateFormat("dd/MM/yyyy").format(new j
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextField tf_condpgto;
+    private javax.swing.JTextField tf_convenio;
     private com.toedter.calendar.JDateChooser tf_dataFin;
     private com.toedter.calendar.JDateChooser tf_dataIni;
+    private javax.swing.JTextField tf_empresa;
+    private javax.swing.JTextField tf_medico;
+    private javax.swing.JTextField tf_paciente;
     // End of variables declaration//GEN-END:variables
 public void telaBuscaClient(){
         BuscaPacientesModal telBuscClie = new BuscaPacientesModal(null, true);
@@ -348,7 +412,7 @@ public void telaBuscaClient(){
              c = telBuscClie.retornCliSele();
             if (c != null) {
                 paciente = c.getId().toString();
-              
+                tf_paciente.setText(c.getNome());
                 }
             }else  {
                 cb_paciente.setSelectedIndex(0);   
@@ -363,11 +427,30 @@ public void telabuscMedicos(){
             Usuario m = med.retornMedSele();
             if (m != null) {
                 usuario = m.getId().toString();
+                tf_medico.setText(m.getNomeMedico());
                 }
             }else{
             cb_medico.setSelectedIndex(0);
+            tf_medico.setText("");
         }
         }
+    public void telBuscaEmpresa() {
+        BuscaEmpresas empr = new BuscaEmpresas(null, true);
+        empr.getRootPane().setWindowDecorationStyle(JRootPane.COLOR_CHOOSER_DIALOG);
+        empr.setVisible(true);
+
+        if (empr.okselecionado()) {
+        Empresa emp = empr.retornCliSele();
+        if (emp != null) {
+            empresa = emp.getId().toString();
+            tf_empresa.setText(emp.getFantasia());
+        }
+        }else{
+            cb_emprea.setSelectedIndex(0);
+            tf_empresa.setText("");
+        }
+        
+    }
        
     public void telBuscaConpagt(){
         BuscaCondPagt bc = new BuscaCondPagt(null, true);
@@ -377,24 +460,28 @@ public void telabuscMedicos(){
             CondPagto c = bc.retornEspSele();
             if (c != null) {
                 condPag = c.getId().toString();
+                tf_condpgto.setText(c.getCondPagt());
             }
             
         }else {
             cb_condPagt.setSelectedIndex(0);
+            tf_condpgto.setText("");
         }
         
 
        }   
     
     public void telBuscaConvenio(){
-         BuscConvenios tc = new BuscConvenios(null, true);
+         BuscaConvenios tc = new BuscaConvenios(null, true);
         tc.setVisible(true);
 
         if (tc.okselecionado()) {
             Convenio c = tc.retornEspSele();
             conve= c.getId().toString();
+            tf_convenio.setText(c.getDsConvenio());
         }else{
             cb_conv.setSelectedIndex(0);
+            tf_convenio.setText("");
         }
         
       
@@ -409,6 +496,7 @@ public void telabuscMedicos(){
     
     public void gerarRel(){
         
+   String emp ;
    String pa ;
    String med ;
    String condp ;
@@ -428,29 +516,32 @@ public void telabuscMedicos(){
             pa = "";
         }else{
             
-            pa = "and id_paciente = '"+paciente+"' ";
-            System.out.println(paciente);
+            pa = "and pa.id = '"+paciente+"' ";
         }
         if (st == 0) {
-            status = "and status in (1,2,3,4,5,6)";
+            status = "and sts.id in (1,2,3,4,5,6)";
         
         }else{
-            status = "and status in ("+st+")";
+            status = "and sts.id in ("+st+")";
         }
         
         if (cb_conv.getSelectedIndex() == 0) {
             conv = "";
         }else{
-            conv = "and convenios.id = '"+conve+"' ";
+            conv = "and cv.id = '"+conve+"' ";
         }
         if (cb_condPagt.getSelectedIndex() == 0) {
             condp = "";
         }else{
-            condp = "and cond_pagto.id = '"+condPag+"' ";
+            condp = "and cpgto.id = '"+condPag+"' ";
         }if (cb_medico.getSelectedIndex() == 0) {
             med = "";
         }else{
-            med = "and usuarios.id = '"+usuario+"' ";
+            med = "and usu.id = '"+usuario+"' ";
+        }if (cb_emprea.getSelectedIndex() == 0) {
+            emp = "";
+        }else{
+            emp = "and ep.id = '"+empresa+"' ";
         }
             switch (cb_ordem.getSelectedIndex()) {
                 case 0:
@@ -471,8 +562,8 @@ public void telabuscMedicos(){
                 default:
                     ordem = "data_consulta";
             }
-            Empresa e = Sessao.getInstance().getEmpresa();
-        c.ConectRelatorio((java.sql.Date) dataIni, (java.sql.Date) dataFin, pa, status, conv, condp, med, ordem,e.getId());
+            Clinica e = Sessao.getInstance().getClinica();
+        c.ConectRelatorio((java.sql.Date) dataIni, (java.sql.Date) dataFin, pa, status, conv, condp, med, ordem,e.getId(),emp);
     } catch (ParseException ex) {
        
              JOptionPane.showMessageDialog(null, "Data inválida!");

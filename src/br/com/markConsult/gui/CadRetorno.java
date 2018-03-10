@@ -8,9 +8,11 @@ import br.com.markConsult.classesMetodos.ConsPcliTableModel;
 import br.com.markConsult.classesMetodos.FormatacaoConteudo;
 import br.com.markConsult.dao.CadConsultasDAO;
 import br.com.markConsult.dao.ICadConsultasDAO;
-import br.com.markConsult.dao.entidades.Consulta;
+import br.com.markConsult.entidades.Consulta;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.sql.Date;
 import java.text.DateFormat;
@@ -21,8 +23,12 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -61,22 +67,28 @@ public class CadRetorno extends javax.swing.JDialog {
         
         jTConsultas.getSelectionModel().setSelectionInterval(0, 0);
         
-         tf_dataConsul.addPropertyChangeListener(new java.beans.PropertyChangeListener() {//GERA A AÇÃO PRA TROCA DE PROPRIEDADE  
-            @Override
-            
-            public void propertyChange(java.beans.PropertyChangeEvent evt) { try {
-                //GERA EVENTO
-    
-                buscaPorData();
-                } catch (ParseException ex) {
-                    Logger.getLogger(CadRetorno.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                    
-                }     
-
-           
-        });
+         tf_dataConsul.addPropertyChangeListener((java.beans.PropertyChangeEvent evt) -> {
+             try {
+                 //GERA EVENTO
+                 
+                 buscaPorData();
+             } catch (ParseException ex) {
+                 Logger.getLogger(CadRetorno.class.getName()).log(Level.SEVERE, null, ex);
+             }
+        } //GERA A AÇÃO PRA TROCA DE PROPRIEDADE
+        );
         
+         KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+
+        Action escapeAction = new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE", escapeAction);
         
     }
 
@@ -243,7 +255,6 @@ public class CadRetorno extends javax.swing.JDialog {
         consulta.setObs("");
         consulta.setStatus(1);
         consulta.setDataConsulta(dataConve);
-        consulta.getProcedimento().setId(null);
         
         ICadConsultasDAO dao = new CadConsultasDAO();
         dao.inseConsult(consulta);
@@ -295,30 +306,23 @@ public class CadRetorno extends javax.swing.JDialog {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CadRetorno.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(CadRetorno.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(CadRetorno.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(CadRetorno.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        
+        //</editor-fold>
 
         /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                CadRetorno dialog = new CadRetorno(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            CadRetorno dialog = new CadRetorno(new javax.swing.JFrame(), true);
+            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosing(java.awt.event.WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+            dialog.setVisible(true);
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables

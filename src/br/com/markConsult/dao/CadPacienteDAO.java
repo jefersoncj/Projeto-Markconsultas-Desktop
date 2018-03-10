@@ -4,11 +4,12 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Cep;
-import br.com.markConsult.dao.entidades.Paciente;
-import br.com.markConsult.dao.entidades.Consulta;
-import br.com.markConsult.dao.entidades.Convenio;
-import br.com.markConsult.dao.entidades.ArquivosPaciente;
+import br.com.markConsult.entidades.Cep;
+import br.com.markConsult.entidades.Consulta;
+import br.com.markConsult.entidades.Convenio;
+import br.com.markConsult.entidades.Empresa;
+import br.com.markConsult.entidades.Funcao;
+import br.com.markConsult.entidades.Paciente;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -41,8 +42,7 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
     public CadPacienteDAO() {
         this.idAlterado = false;
     }
-    private final ArrayList<Paciente> pacientes = new ArrayList<>();
-    private final ArrayList<ArquivosPaciente> imagensPacientes = new ArrayList<>();
+    private final ArrayList<Paciente> pacientes = new ArrayList<>();;
     @Override
     public Integer insePaciente(Paciente paciente){
         Connection connection = null;
@@ -62,7 +62,7 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
                 sql = "INSERT INTO pacientes (num_convenio, nome, email, cep, municipio,"
                         + "uf, logradouro, numero, bairro, complemento, cpf,"
                         + "rg, data_nasc, fone_fixo, celular1, celular2, celular3,"
-                        + "obs,tipo_sang, desabilitado,data_cadastro, nome_mae, nome_pai)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        + "obs,tipo_sang, desabilitado,data_cadastro, nome_mae, nome_pai, id_empresa, id_funcao)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 // criar o statement
                 pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
                 
@@ -90,14 +90,24 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
                 pstm.setDate(++index, paciente.getDataCadastro());
                 pstm.setString(++index, paciente.getNomeMae());
                 pstm.setString(++index, paciente.getNomePai());
-               
+                
+                if(paciente.getEmpresa().getId() == null){
+                    pstm.setNull(++index, java.sql.Types.INTEGER );
+                }else{
+                pstm.setInt(++index, paciente.getEmpresa().getId());
+                }
+                if (paciente.getFuncao().getId() == null) {
+                    pstm.setNull(++index, java.sql.Types.INTEGER);
+                } else {
+                    pstm.setInt(++index, paciente.getFuncao().getId());
+                }
 
             } else {
 
                 sql = "INSERT INTO pacientes (num_convenio, id_convenio, nome, email, cep, municipio,"
                         + "uf, logradouro, numero, bairro, complemento, cpf,"
                         + "rg, data_nasc, fone_fixo, celular1, celular2, celular3,"
-                        + "obs, tipo_sang, desabilitado, data_cadastro, nome_mae, nome_pai)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        + "obs, tipo_sang, desabilitado, data_cadastro, nome_mae, nome_pai, id_empresa, id_funcao)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                 // criar o statement
                 pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
@@ -128,6 +138,16 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
                 pstm.setDate(++index, paciente.getDataCadastro());
                 pstm.setString(++index, paciente.getNomeMae());
                 pstm.setString(++index, paciente.getNomePai());
+                if(paciente.getEmpresa().getId() == null){
+                    pstm.setNull(++index, java.sql.Types.INTEGER );
+                }else{ 
+                pstm.setInt(++index, paciente.getEmpresa().getId());
+                }
+                if (paciente.getFuncao().getId() == null) {
+                    pstm.setNull(++index, java.sql.Types.INTEGER);
+                } else {
+                    pstm.setInt(++index, paciente.getFuncao().getId());
+                }
               
             }
 
@@ -169,7 +189,7 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
                     + "email = ?, cep = ?, municipio = ?, uf = ?, logradouro = ?, numero = ?, bairro = ?, "
                     + "complemento = ?, cpf = ?, rg = ?, data_nasc = ?, fone_fixo = ?, celular1 = ?,"
                     + "celular2 = ?, celular3 = ?, obs = ?, tipo_sang = ?, desabilitado = ?, nome_mae = ?, "
-                    + "nome_pai = ? WHERE id = ?";
+                    + "nome_pai = ?, id_empresa = ?, id_funcao = ? WHERE id = ?";
 
             // criar o statement
 
@@ -200,6 +220,17 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
             pstm.setBoolean(++index, paciente.isDesabilitado());
             pstm.setString(++index, paciente.getNomeMae());
             pstm.setString(++index, paciente.getNomePai());
+            
+            if(paciente.getEmpresa().getId() == null){
+                pstm.setNull(++index, java.sql.Types.INTEGER );
+            }else{
+            pstm.setInt(++index, paciente.getEmpresa().getId());
+            }
+            if (paciente.getFuncao().getId() == null) {
+                pstm.setNull(++index, java.sql.Types.INTEGER);
+            } else {
+                pstm.setInt(++index, paciente.getFuncao().getId());
+            }
             pstm.setInt(++index, paciente.getId());
             // executar
             pstm.execute();
@@ -268,35 +299,47 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
             switch (tipo) {
                 case 'e':
 
-                    sql = " SELECT pacientes.*, convenios.ds_convenio,valor FROM pacientes "
+                    sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
                             + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
-                            + " WHERE nome LIKE '%" + dado + "%' ORDER BY id ";
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                            + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
+                            + " WHERE pacientes.nome LIKE '%" + dado + "%' ORDER BY id ";
                     break;
                 case 'i':
-                    sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                            + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                            + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                             + " WHERE num_convenio = '" + dado + "' ORDER BY id ";
                     break;
 
                 case 't':
-                    sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                            + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                            + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                             + " WHERE cpf = '"+dado+"' ORDER BY id ";
                     break;
 
                 case 'a':
-                    sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                            + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                            + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                             + " WHERE logradouro LIKE '%" + dado + "%' ORDER BY id ";
                     break;
                 case 'o':
-                    sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                            + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                            + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                             + " WHERE id = '" + dado + "' ORDER BY id ";
                     break;
                  case 'p':
-                    sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes"
-                            + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                            + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                             + " WHERE rg = '"+dado+"' ORDER BY id ";
                     break;
                 default:
@@ -307,15 +350,10 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
             stm = connection.createStatement();
             rs = stm.executeQuery(sql);
             while (rs.next()) {
-               
+                
                 cli = retornObjPaciente(rs);
-
                 pacientes.add(cli);
-
-
             }
-
-
         } catch (Exception e) {
             try {
                 rollbackTransaction(connection);
@@ -331,8 +369,8 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
    
 
     @Override
-    public Paciente buscClientPCon(String id) {
-        Paciente client = null;
+    public Paciente buscaPacientePorConsulta(String id) {
+        Paciente pacient = null;
         Connection connection = null;
         PreparedStatement pstm = null;
         ResultSet rs = null;
@@ -342,8 +380,10 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
             beginTransaction(connection);
 
             // CRIAR SQL
-            String sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                    + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+               String sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                       + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                     + " WHERE pacientes.num_convenio = ? ORDER BY pacientes.id";
 
             // criar o statement
@@ -355,7 +395,7 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
 
             while (rs.next()) {
                 //desencripta
-                client = retornObjPaciente(rs);
+                pacient = retornObjPaciente(rs);
             }
         } catch (Exception e) {
             try {
@@ -366,12 +406,12 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
         } finally {
             cleanup(rs, pstm, connection);
         }
-        return client;
+        return pacient;
     }
 
     @Override
-    public Paciente buscClientPid(int id) {
-        Paciente client = null;
+    public Paciente buscaPacientePorId(int id) {
+        Paciente pacient = null;
         Connection connection = null;
         PreparedStatement pstm = null;
         ResultSet rs = null;
@@ -382,8 +422,10 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
            
 
             // CRIAR SQL
-            String sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                    + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+               String sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                       + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
                     + " WHERE pacientes.id = ? ";
 
             // criar o statement
@@ -395,7 +437,7 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
 
             while (rs.next()) {
                 //desencripta
-                client = retornObjPaciente(rs);
+                pacient = retornObjPaciente(rs);
             }
         } catch (Exception e) {
             try {
@@ -406,10 +448,10 @@ public class CadPacienteDAO extends AbstractConecxaoDAO implements ICadPacienteD
         } finally {
             cleanup(rs, pstm, connection);
         }
-        return client;
+        return pacient;
     }
 public Paciente buscPacientePrecadastro(String dado, char tipo) {
-        Paciente client = null;
+        Paciente pacient = null;
         Connection connection = null;
         PreparedStatement pstm = null;
         ResultSet rs = null;
@@ -423,15 +465,19 @@ public Paciente buscPacientePrecadastro(String dado, char tipo) {
             String sql = "";
             switch (tipo) {
                 case 'e':
-                    sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                    + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                            + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
                     + " WHERE pacientes.nome = ? ";
                     break;
                     
                 case 'i':
                     
-                    sql = " SELECT  pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                    + " LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                            + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                            + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
+                            + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
                     + " WHERE rg = ? ";
                     
                     break;
@@ -449,7 +495,7 @@ public Paciente buscPacientePrecadastro(String dado, char tipo) {
 
             while (rs.next()) {
                 //desencripta
-                client = retornObjPaciente(rs);
+                pacient = retornObjPaciente(rs);
             }
         } catch (Exception e) {
             try {
@@ -460,7 +506,7 @@ public Paciente buscPacientePrecadastro(String dado, char tipo) {
         } finally {
             cleanup(rs, pstm, connection);
         }
-        return client;
+        return pacient;
     }
 
     @Override
@@ -525,8 +571,10 @@ public Paciente buscPacientePrecadastro(String dado, char tipo) {
             beginTransaction(connection);
            
             // CRIAR SQL
-            String sql = "SELECT pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                    + " LEFT JOIN convenios on convenios.id = pacientes.id_convenio "
+            String  sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                    + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                    + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                     + " WHERE pacientes.id = (SELECT MAX(id) AS maxID FROM pacientes)";
 
             // criar o statement
@@ -565,8 +613,10 @@ public Paciente buscPacientePrecadastro(String dado, char tipo) {
             beginTransaction(connection);
            
             // CRIAR SQL
-            String sql = " SELECT pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                    + " LEFT JOIN convenios on convenios.id = pacientes.id_convenio "
+            String  sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                    + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                    + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                     + " WHERE pacientes.id = (SELECT MIN(id) AS minID FROM pacientes)";
 
             // criar o statement
@@ -604,8 +654,10 @@ public Paciente buscPacientePrecadastro(String dado, char tipo) {
             // GERAR O ID UNICO
 
             // CRIAR SQL
-            String sql = "SELECT pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                    + " LEFT JOIN convenios on convenios.id = pacientes.id_convenio "
+            String  sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                    + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                    + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                     + " WHERE pacientes.id > '" + id + "' ORDER BY pacientes.id limit 1";
 
             // criar o statement
@@ -641,8 +693,10 @@ public Paciente buscPacientePrecadastro(String dado, char tipo) {
             beginTransaction(connection);
 
             // CRIAR SQL
-            String sql = " SELECT pacientes.*, convenios.ds_convenio,valor FROM pacientes "
-                    + " LEFT JOIN convenios on convenios.id = pacientes.id_convenio "
+            String  sql = " SELECT pacientes.*,empresa.fantasia, convenios.ds_convenio,valor, funcao.nome AS nome_funcao FROM pacientes "
+                    + "LEFT JOIN convenios ON convenios.id = pacientes.id_convenio "
+                    + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
+                    + "LEFT JOIN funcao ON funcao.id = pacientes.id_funcao "
                     + " WHERE pacientes.id < '" + id + "' ORDER BY pacientes.id desc limit 1";
 
             // criar o statement
@@ -674,16 +728,13 @@ public Paciente buscPacientePrecadastro(String dado, char tipo) {
         
         Convenio conv = new Convenio(rs.getInt("id_convenio"), rs.getString("ds_convenio"),rs.getDouble("valor"));
         Cep cep = new Cep(null, rs.getString("cep"), rs.getString("logradouro"), rs.getString("bairro"), rs.getString("municipio"), rs.getString("uf"));
-
-
+        Empresa empresa = new Empresa(rs.getInt("id_empresa"), rs.getString("fantasia"));
+        Funcao funcao = new Funcao(rs.getInt("id_funcao"), rs.getString("nome_funcao"));
          c = new Paciente(rs.getInt("id"), rs.getString("num_convenio"), conv, rs.getString("nome"),
                 rs.getString("email"), rs.getString("numero"), rs.getString("complemento"), rs.getString("cpf"),
                 rs.getString("rg"), rs.getDate("data_nasc"), rs.getString("tipo_sang"), rs.getString("fone_fixo"),
                 rs.getString("celular1"), rs.getString("celular2"), rs.getString("celular3"), rs.getString("obs"),
-                cep,rs.getBoolean("desabilitado"), null, rs.getString("nome_mae"), rs.getString("nome_pai"));
-
-
-        
+                cep,rs.getBoolean("desabilitado"), null, rs.getString("nome_mae"), rs.getString("nome_pai"),empresa,funcao);
         }
         return c;
     }

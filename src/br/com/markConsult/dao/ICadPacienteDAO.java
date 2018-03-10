@@ -4,8 +4,8 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Cep;
-import br.com.markConsult.dao.entidades.Paciente;
+import br.com.markConsult.entidades.Cep;
+import br.com.markConsult.entidades.Paciente;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -54,13 +54,13 @@ public interface ICadPacienteDAO {
      * @param id
      * @return
      */
-    public Paciente buscClientPCon(String id);
+    public Paciente buscaPacientePorConsulta(String id);
     /**
      *
      * @param id
      * @return
      */
-    public Paciente buscClientPid(int id);
+    public Paciente buscaPacientePorId(int id);
     
  
     /**

@@ -51,10 +51,19 @@
         </Component>
         <MenuItem class="javax.swing.JMenuItem" name="jMenuIt_historico">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Ver historico do Cliente"/>
+            <Property name="text" type="java.lang.String" value="Ver hist&#xf3;rico do Paciente"/>
+            <Property name="actionCommand" type="java.lang.String" value="Ver historico do Paciente"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuIt_historicoActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="jMenuIt_verProcedimentos">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Ver procedimento"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuIt_verProcedimentosActionPerformed"/>
           </Events>
         </MenuItem>
       </SubComponents>
@@ -125,12 +134,7 @@
         <Component class="javax.swing.JTable" name="jTConsultas">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="4" rowCount="4">
-                <Column editable="true" title="Title 1" type="java.lang.Object"/>
-                <Column editable="true" title="Title 2" type="java.lang.Object"/>
-                <Column editable="true" title="Title 3" type="java.lang.Object"/>
-                <Column editable="true" title="Title 4" type="java.lang.Object"/>
-              </Table>
+              <Table columnCount="0" rowCount="0"/>
             </Property>
           </Properties>
           <Events>

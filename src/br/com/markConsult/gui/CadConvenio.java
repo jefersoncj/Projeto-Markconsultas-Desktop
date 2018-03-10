@@ -8,7 +8,7 @@ import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.IntegerDocument;
 import br.com.markConsult.classesMetodos.Mascaras;
 import br.com.markConsult.dao.CadConvenioDAO;
-import br.com.markConsult.dao.entidades.Convenio;
+import br.com.markConsult.entidades.Convenio;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 
@@ -315,9 +315,7 @@ int inserir_alterar = 0;
             double valor = Double.parseDouble(tf_valor.getText().replaceAll("\\.", "").replace(",", "."));
         if (inserir_alterar == 0) {  
             CadConvenioDAO dao = new CadConvenioDAO();
-
             Convenio convenio = new Convenio(null, descricao, valor);
-
             int id = dao.inserir(convenio);
 
             convenio.setId(id);
@@ -332,9 +330,9 @@ int inserir_alterar = 0;
             CadConvenioDAO dao = new CadConvenioDAO();
             Convenio convenio = new Convenio(id, descricao, valor);
             dao.alterar(convenio);
-
+            inserir_alterar = 0;
         }
-        inserir_alterar = 0;
+        
 
         estadoBotoes("salvar");
     }//GEN-LAST:event_bt_salvarActionPerformed
@@ -546,7 +544,7 @@ public void buscaPorId(String id) {
 
 
 public void telBuscaConvenio(){
-         BuscConvenios tc = new BuscConvenios(null, true);
+         BuscaConvenios tc = new BuscaConvenios(null, true);
         tc.setVisible(true);
 
         if (tc.okselecionado()) {

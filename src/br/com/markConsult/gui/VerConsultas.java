@@ -9,7 +9,8 @@ import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.FormatacaoConteudo;
 import br.com.markConsult.dao.CadConsultasDAO;
 import br.com.markConsult.dao.ICadConsultasDAO;
-import br.com.markConsult.dao.entidades.Consulta;
+import br.com.markConsult.entidades.Consulta;
+import br.com.markConsult.entidades.Paciente;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
@@ -42,6 +43,7 @@ public class VerConsultas extends javax.swing.JInternalFrame {
     public VerConsultas() {
         initComponents();
         addpopup();
+        tf_dado.requestFocus();
         model = new ConsPcliTableModel();
         jTConsultas.setModel(model);
         jTConsultas.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -75,7 +77,7 @@ public class VerConsultas extends javax.swing.JInternalFrame {
         }); 
         jC_status.setSelectedIndex(6);
         
-        tf_dado.requestFocus();
+        
     }
 
     /**
@@ -95,8 +97,8 @@ public class VerConsultas extends javax.swing.JInternalFrame {
         jMenuIt_Faltou = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuIt_retorno = new javax.swing.JMenuItem();
-        jMenuIt_Procedimento = new javax.swing.JMenuItem();
         jMenuIt_NovaCon = new javax.swing.JMenuItem();
+        jMenuIt_verProcedimentos = new javax.swing.JMenuItem();
         cbx_complete = new java.awt.Checkbox();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTConsultas = new javax.swing.JTable();
@@ -154,14 +156,6 @@ public class VerConsultas extends javax.swing.JInternalFrame {
         });
         jPMenu.add(jMenuIt_retorno);
 
-        jMenuIt_Procedimento.setText("Marcar Procedimento");
-        jMenuIt_Procedimento.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuIt_ProcedimentoActionPerformed(evt);
-            }
-        });
-        jPMenu.add(jMenuIt_Procedimento);
-
         jMenuIt_NovaCon.setText("Nova Consulta");
         jMenuIt_NovaCon.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -169,6 +163,14 @@ public class VerConsultas extends javax.swing.JInternalFrame {
             }
         });
         jPMenu.add(jMenuIt_NovaCon);
+
+        jMenuIt_verProcedimentos.setText("Ver procedimento");
+        jMenuIt_verProcedimentos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuIt_verProcedimentosActionPerformed(evt);
+            }
+        });
+        jPMenu.add(jMenuIt_verProcedimentos);
 
         setClosable(true);
         setIconifiable(true);
@@ -186,6 +188,11 @@ public class VerConsultas extends javax.swing.JInternalFrame {
 
             }
         ));
+        jTConsultas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jTConsultasMousePressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTConsultas);
 
         bt_sair.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/Log-Out-icon.png"))); // NOI18N
@@ -321,58 +328,12 @@ public class VerConsultas extends javax.swing.JInternalFrame {
         pesquisa();
     }//GEN-LAST:event_bt_busca2ActionPerformed
 
-    private void jMenuIt_AbertaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_AbertaActionPerformed
-        popupselsecionado(1);
-        pesquisa();
-    }//GEN-LAST:event_jMenuIt_AbertaActionPerformed
-
-    private void jMenuIt_EncerraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_EncerraActionPerformed
-        popupselsecionado(2);
-        pesquisa();
-    }//GEN-LAST:event_jMenuIt_EncerraActionPerformed
-
-    private void jMenuIt_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_CancelActionPerformed
-        popupselsecionado(3);
-        pesquisa();
-    }//GEN-LAST:event_jMenuIt_CancelActionPerformed
-
-    private void jMenuIt_FaltouActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_FaltouActionPerformed
-        popupselsecionado(4);
-        pesquisa();
-    }//GEN-LAST:event_jMenuIt_FaltouActionPerformed
-
-    private void jMenuIt_retornoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_retornoActionPerformed
-        int consultaSelecionada = jTConsultas.getSelectedRow();
-        if (consultaSelecionada >= 0) {
-        consultaSelecionada = jTConsultas.convertRowIndexToModel(consultaSelecionada);
-        Consulta con = model.getItem(consultaSelecionada);
-        CadRetorno retorno = new CadRetorno(null, true);
-        retorno.passaConsulta(con);
-        retorno.setNomeClie(con.getPaciente().getNome());
-        retorno.setVisible(true);
-        pesquisa();
-        }
-        
-    }//GEN-LAST:event_jMenuIt_retornoActionPerformed
-
-    private void jMenuIt_ProcedimentoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_ProcedimentoActionPerformed
-        int consultaSelecionada = jTConsultas.getSelectedRow();
-        if (consultaSelecionada >= 0) {
-        consultaSelecionada = jTConsultas.convertRowIndexToModel(consultaSelecionada);
-        Consulta con = model.getItem(consultaSelecionada);
-        MarcProcedimento pro = new MarcProcedimento(null, true);
-        pro.passaConsulta(con);
-        pro.setNomeClie(con.getPaciente().getNome());
-        pro.setVisible(true);
-        }
-    }//GEN-LAST:event_jMenuIt_ProcedimentoActionPerformed
-
     private void jC_statusPopupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_jC_statusPopupMenuWillBecomeInvisible
         pesqPstatus();
     }//GEN-LAST:event_jC_statusPopupMenuWillBecomeInvisible
 
     private void jMenuIt_NovaConActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_NovaConActionPerformed
-       
+
         try {
             int conSele = jTConsultas.getSelectedRow();
             Consulta c;
@@ -383,7 +344,7 @@ public class VerConsultas extends javax.swing.JInternalFrame {
                 telCadCons.estadoBotoes("novo");
                 telCadCons.novoCad(converte(data));
                 telCadCons.setPaciente(c.getPaciente());
-                telCadCons.buscaClient();
+                telCadCons.buscaPaciente();
                 telCadCons.setVisible(true);
                 pesquisa();
             }
@@ -392,6 +353,54 @@ public class VerConsultas extends javax.swing.JInternalFrame {
             System.out.println("erro ao marcar nova consulta");
         }
     }//GEN-LAST:event_jMenuIt_NovaConActionPerformed
+
+    private void jMenuIt_retornoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_retornoActionPerformed
+        int consultaSelecionada = jTConsultas.getSelectedRow();
+        if (consultaSelecionada >= 0) {
+            consultaSelecionada = jTConsultas.convertRowIndexToModel(consultaSelecionada);
+            Consulta con = model.getItem(consultaSelecionada);
+            CadRetorno retorno = new CadRetorno(null, true);
+            retorno.passaConsulta(con);
+            retorno.setNomeClie(con.getPaciente().getNome());
+            retorno.setVisible(true);
+            pesquisa();
+        }
+
+    }//GEN-LAST:event_jMenuIt_retornoActionPerformed
+
+    private void jMenuIt_FaltouActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_FaltouActionPerformed
+        popupselsecionado(4);
+        pesquisa();
+    }//GEN-LAST:event_jMenuIt_FaltouActionPerformed
+
+    private void jMenuIt_CancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_CancelActionPerformed
+        popupselsecionado(3);
+        pesquisa();
+    }//GEN-LAST:event_jMenuIt_CancelActionPerformed
+
+    private void jMenuIt_EncerraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_EncerraActionPerformed
+        popupselsecionado(2);
+        pesquisa();
+    }//GEN-LAST:event_jMenuIt_EncerraActionPerformed
+
+    private void jMenuIt_AbertaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_AbertaActionPerformed
+        popupselsecionado(1);
+        pesquisa();
+    }//GEN-LAST:event_jMenuIt_AbertaActionPerformed
+
+    private void jMenuIt_verProcedimentosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIt_verProcedimentosActionPerformed
+        verProcedimento();
+    }//GEN-LAST:event_jMenuIt_verProcedimentosActionPerformed
+
+    private void jTConsultasMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTConsultasMousePressed
+       
+            if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 1) {
+              
+            } else if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
+               verProcedimento();
+ 
+          }
+    }//GEN-LAST:event_jTConsultasMousePressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_busca2;
@@ -407,8 +416,8 @@ public class VerConsultas extends javax.swing.JInternalFrame {
     private javax.swing.JMenuItem jMenuIt_Encerra;
     private javax.swing.JMenuItem jMenuIt_Faltou;
     private javax.swing.JMenuItem jMenuIt_NovaCon;
-    private javax.swing.JMenuItem jMenuIt_Procedimento;
     private javax.swing.JMenuItem jMenuIt_retorno;
+    private javax.swing.JMenuItem jMenuIt_verProcedimentos;
     private javax.swing.JPopupMenu jPMenu;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
@@ -543,5 +552,11 @@ public Date converte(String dataNasc) throws ParseException {
                     jTConsultas.getSelectionModel().setSelectionInterval(c, c);
                 }
         dao.altStatConsult(con);
+    }
+    private void verProcedimento() {
+        VerProcedimentosConsulta1 vpc = new VerProcedimentosConsulta1(null, true);
+        int consultaSelecionada = jTConsultas.getSelectedRow();
+        vpc.setConsulta(model.getItem(consultaSelecionada));
+        vpc.setVisible(true);
     }
 }

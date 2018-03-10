@@ -8,8 +8,8 @@ import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.IntegerDocument;
 import br.com.markConsult.dao.CadEspecialiDAO;
 import br.com.markConsult.dao.CadUsuarioDAO;
-import br.com.markConsult.dao.entidades.Especialidade;
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Especialidade;
+import br.com.markConsult.entidades.Usuario;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
@@ -801,7 +801,7 @@ public void buscaPorId(String id) {
     
     
     public void telBuscUsuario(){
-        BuscUsuario usu = new BuscUsuario(null, true);
+        BuscaUsuario usu = new BuscaUsuario(null, true);
         usu.setVisible(true);
         if (usu.okselecionado()) {
           
@@ -812,7 +812,7 @@ public void buscaPorId(String id) {
     
     
     public void telBuscEspe(){
-           BuscEspecialidades b = new BuscEspecialidades(null, true);
+           BuscaEspecialidades b = new BuscaEspecialidades(null, true);
       b.setVisible(true);
         if (b.okselecionado()) {
             Especialidade m = b.retornEspSele();

@@ -6,7 +6,7 @@ package br.com.markConsult.classesMetodos;
  */
 
 
-import br.com.markConsult.dao.entidades.Consulta;
+import br.com.markConsult.entidades.Consulta;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -27,13 +27,13 @@ public class ConsultTableModel extends AbstractTableModel{
     private final int COL_FILA = 0;
     private final int COL_NOME = 1;
     private final int COL_CONVENO = 2;
-    private final int COL_VALOR = 3;
-    private final int COL_PAGTO = 4;
-    private final int COL_STATUS = 5;
-    private final int COL_TIPO = 6;
-    private final int COL_PROCED = 7;
-    private final int COL_PRIORITARIO = 8;
-    private final int COL_AUTORIZACAO = 9;
+    private final int COL_PAGTO = 3;
+    private final int COL_STATUS = 4;
+    private final int COL_TIPO = 5;
+    private final int COL_PROCED = 6;
+    private final int COL_PRIORITARIO = 7;
+    private final int COL_AUTORIZACAO = 8;
+    private final int COL_VALOR = 9;
     private final int COL_OBS = 10;
     
     
@@ -68,77 +68,64 @@ public class ConsultTableModel extends AbstractTableModel{
       @Override
     public String getColumnName(int column) {
         //qual o nome da coluna
-        if (column == COL_FILA) {
-            return "Nº Fila";
-        
-        }else if (column == COL_NOME) {
-            return "Nome";
-        
-        }else if (column == COL_CONVENO) {
-            return "Convênio";
-        
-        }  else if (column == COL_VALOR) {
-            return "Valor";
-            
-        }
-        else if (column == COL_PAGTO) {
-            return "Pagamento";
-            
-        }
-        else if (column == COL_STATUS) {
-            return "Status";
-            
-        }else if (column == COL_TIPO) {
-            return "Tipo Con.";
-            
-        }else if (column == COL_PROCED) {
-            return "Procedimento";
-            
-        } else if (column == COL_PRIORITARIO) {
-            return "Prioritário";
-            
-        }else if (column == COL_AUTORIZACAO) {
-            return "Autorização";
-            
-        }
-        else if (column == COL_OBS) {
-            return "Observação";
-            
+        switch (column) {
+            case COL_FILA:
+                return "Nº Fila";
+            case COL_NOME:
+                return "Nome";
+            case COL_CONVENO:
+                return "Convênio";
+            case COL_PAGTO:
+                return "Pagamento";
+            case COL_STATUS:
+                return "Status";
+            case COL_TIPO:
+                return "Tipo Con.";
+            case COL_PROCED:
+                return "Procedimento";
+            case COL_PRIORITARIO:
+                return "Prioritário";
+            case COL_AUTORIZACAO:
+                return "Autorização";
+            case COL_VALOR:
+                return "Valor";
+            case COL_OBS:
+                return "Observação";
+            default:
+                break;
         }
         return "";
     }
       
       @Override
     public Class getColumnClass(int columnIndex) {
-       // retorna a classe que representa a coluna
-        if (columnIndex == COL_FILA) {
-            return int.class;
-        }else if (columnIndex == COL_NOME) {
-        return String.class;
-       } else if (columnIndex == COL_CONVENO) {
-            return String.class;
-       }else if (columnIndex == COL_VALOR) {
-        return String.class;
-       }
-       else if (columnIndex == COL_PAGTO) {
-        return String.class;
-       }
-       else if (columnIndex == COL_STATUS) {
-        return String.class;
-       }
-       else if (columnIndex == COL_TIPO) {
-        return String.class;
-       }else if (columnIndex == COL_PROCED) {
-        return String.class;
-       }
-       else if (columnIndex == COL_PRIORITARIO) {
-        return String.class;
-       }else if (columnIndex == COL_AUTORIZACAO) {
-        return String.class;
-       }
-        else if (columnIndex == COL_OBS) {
-        return String.class;
-       }
+        // retorna a classe que representa a coluna
+        switch (columnIndex) {
+            case COL_FILA:
+                return int.class;
+            case COL_NOME:
+                return String.class;
+            case COL_CONVENO:
+                return String.class;
+            case COL_PAGTO:
+                return String.class;
+            case COL_STATUS:
+                return String.class;
+            case COL_TIPO:
+                return String.class;
+            case COL_PROCED:
+                return String.class;
+            case COL_PRIORITARIO:
+                return String.class;
+            case COL_AUTORIZACAO:
+                return String.class;
+            case COL_VALOR:
+                return String.class;
+            case COL_OBS:
+                return String.class;
+            default:
+                break;
+        }
        
         return String.class;
       }
@@ -148,65 +135,56 @@ public class ConsultTableModel extends AbstractTableModel{
         Consulta c = consultas.get(rowIndex);
        
         //verifica qual valor deve ser retornado
-        if (columnIndex == COL_FILA) {
-            return consultas.indexOf(c)+1;
-        } else if (columnIndex == COL_NOME) {
-            return c.getPaciente().getNome();
-        }
-        else if (columnIndex == COL_CONVENO) {
-            return c.getConvenio().getDsConvenio();
-        }
-        else if (columnIndex == COL_VALOR) {
-             return nf.format(c.getValor());
-        } 
-        else if (columnIndex == COL_PAGTO) {
-            return c.getCondPagt().getCondPagt();
-        }
-        else if (columnIndex == COL_STATUS) {
-            
-            String status = c.getStatus().toString();
-            switch (status) {
-                case "1":
-                    status = "ABERTA";
-                    break;
-                case "2":
-                    status = "ENCERRADA";
-                    break;
-                case "3":
-                    status = "CANCELADA";
-                    break;
-                case "4":
-                    status = "FALTOU";
-                    break;
-                case "5":
-                    status = "AGUARDANDO";
-                    break;
-                case "6":
-                    status = "EM CONSULTA";
-                    break;
-            }
-            return status;
-        }
-        else if (columnIndex == COL_TIPO) {
-            return c.getTipo().getTipoCon();
-        }
-        else if (columnIndex == COL_PROCED) {
-            return c.getProcedimento().getDsProcedimento();
-        }
-        else if (columnIndex == COL_PRIORITARIO) {
-            String priori;
-            if (c.isPrioritario()) {
-                priori = "SIM";
-            }else{
-                priori = "NÃO";
-            }
-            return priori;
-        }
-        else if (columnIndex == COL_AUTORIZACAO) {
-            return c.getCodAutorizacao();
-        }
-        else if (columnIndex == COL_OBS) {
-            return c.getObs();
+        switch (columnIndex) {
+            case COL_FILA:
+                return consultas.indexOf(c)+1;
+            case COL_NOME:
+                return c.getPaciente().getNome();
+            case COL_CONVENO:
+                return c.getConvenio().getDsConvenio();
+            case COL_PAGTO:
+                return c.getCondPagt().getCondPagt();
+            case COL_STATUS:
+                String status = c.getStatus().toString();
+                switch (status) {
+                    case "1":
+                        status = "ABERTA";
+                        break;
+                    case "2":
+                        status = "ENCERRADA";
+                        break;
+                    case "3":
+                        status = "CANCELADA";
+                        break;
+                    case "4":
+                        status = "FALTOU";
+                        break;
+                    case "5":
+                        status = "AGUARDANDO";
+                        break;
+                    case "6":
+                        status = "EM CONSULTA";
+                        break;
+                }
+                return status;
+            case COL_TIPO:
+                return c.getTipo().getTipoCon();
+            case COL_PRIORITARIO:
+                String priori;
+                if (c.isPrioritario()) {
+                    priori = "SIM";
+                }else{
+                    priori = "NÃO";
+                }
+                return priori;
+            case COL_AUTORIZACAO:
+                return c.getCodAutorizacao();
+            case COL_VALOR:
+                return nf.format(c.getValor());                
+            case COL_OBS:
+                return c.getObs();
+            default:
+                break;
         }
         
         return "";

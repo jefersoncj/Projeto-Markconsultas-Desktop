@@ -6,9 +6,8 @@ package br.com.markConsult.gui;
 
 import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.IntegerDocument;
-import br.com.markConsult.classesMetodos.Mascaras;
 import br.com.markConsult.dao.CadProcedimentoDAO;
-import br.com.markConsult.dao.entidades.Procedimento;
+import br.com.markConsult.entidades.Procedimento;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 
@@ -27,7 +26,6 @@ int inserir_alterar = 0;
         estadoBotoes("inicial");
         tf_codigo.setDocument(new IntegerDocument(10));
         tf_descri.setDocument(new  FixedLengthDocument(65));
-        tf_valor.setDocument(new Mascaras(10));
         bt_buscar.requestFocus();
         atualizaTela();
     }
@@ -58,8 +56,6 @@ int inserir_alterar = 0;
         tf_codigo = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         tf_descri = new javax.swing.JTextField();
-        tf_valor = new javax.swing.JFormattedTextField();
-        jLabel1 = new javax.swing.JLabel();
 
         setClosable(true);
         setIconifiable(true);
@@ -215,14 +211,14 @@ int inserir_alterar = 0;
 
         jLabel4.setText("Código:");
 
-        tf_codigo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tf_codigoActionPerformed(evt);
-            }
-        });
         tf_codigo.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 tf_codigoFocusLost(evt);
+            }
+        });
+        tf_codigo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tf_codigoActionPerformed(evt);
             }
         });
         tf_codigo.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -232,14 +228,6 @@ int inserir_alterar = 0;
         });
 
         jLabel5.setText("Descrição:");
-
-        tf_valor.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                tf_valorFocusGained(evt);
-            }
-        });
-
-        jLabel1.setText("Valor:");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -253,13 +241,10 @@ int inserir_alterar = 0;
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(tf_descri, javax.swing.GroupLayout.PREFERRED_SIZE, 451, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tf_valor, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(tf_codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(tf_codigo, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(tf_descri))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -271,9 +256,7 @@ int inserir_alterar = 0;
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tf_descri, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5)
-                    .addComponent(tf_valor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabel5))
                 .addContainerGap())
         );
 
@@ -312,11 +295,10 @@ int inserir_alterar = 0;
 
     private void bt_salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_salvarActionPerformed
         String descricao = tf_descri.getText();
-            double valor = Double.parseDouble(tf_valor.getText().replaceAll("\\.", "").replace(",", "."));
         if (inserir_alterar == 0) {  
             CadProcedimentoDAO dao = new CadProcedimentoDAO();
 
-            Procedimento tipoConsulta = new Procedimento(null, descricao, valor);
+            Procedimento tipoConsulta = new Procedimento(null, descricao);
 
             int id = dao.inserir(tipoConsulta);
 
@@ -330,7 +312,7 @@ int inserir_alterar = 0;
             Integer id = Integer.parseInt(tf_codigo.getText());
 
             CadProcedimentoDAO dao = new CadProcedimentoDAO();
-            Procedimento tipoConsulta = new Procedimento(id, descricao, valor);
+            Procedimento tipoConsulta = new Procedimento(id, descricao);
             dao.alterar(tipoConsulta);
 
         }
@@ -342,7 +324,6 @@ int inserir_alterar = 0;
     private void bt_novoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_novoActionPerformed
         tf_codigo.setText("");
         tf_descri.setText("");
-        tf_valor.setText("0,00");
         estadoBotoes("novo");
         tf_descri.requestFocus();
     }//GEN-LAST:event_bt_novoActionPerformed
@@ -429,11 +410,6 @@ int inserir_alterar = 0;
          }
     }//GEN-LAST:event_tf_codigoKeyPressed
 
-    private void tf_valorFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tf_valorFocusGained
-         tf_valor.setSelectionStart(0);
-         tf_valor.setSelectionEnd(tf_valor.getText().length());
-    }//GEN-LAST:event_tf_valorFocusGained
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_avançar;
     private javax.swing.JButton bt_buscar;
@@ -446,14 +422,12 @@ int inserir_alterar = 0;
     private javax.swing.JButton bt_salvar;
     private javax.swing.JButton bt_ultimo;
     private javax.swing.JButton bt_voltar;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JTextField tf_codigo;
     private javax.swing.JTextField tf_descri;
-    private javax.swing.JFormattedTextField tf_valor;
     // End of variables declaration//GEN-END:variables
 private void estadoBotoes(String botao) {
 if ("inicial".equals(botao)) {
@@ -470,7 +444,6 @@ if ("inicial".equals(botao)) {
 
             tf_codigo.setEditable(true);
             tf_descri.setEditable(false);
-            tf_valor.setEditable(false);
             
            
 
@@ -491,7 +464,6 @@ if ("inicial".equals(botao)) {
 
             tf_codigo.setEditable(false);
             tf_descri.setEditable(true);
-            tf_valor.setEditable(true);
          
 
         }
@@ -518,7 +490,6 @@ if ("inicial".equals(botao)) {
 if(tipoConsulta!=null){
         tf_codigo.setText("" + tipoConsulta.getId());
         tf_descri.setText(tipoConsulta.getDsProcedimento());
-        tf_valor.setText(""+tipoConsulta.getValorProced());
        
 }
     }
@@ -546,7 +517,7 @@ public void buscaPorId(String id) {
 
 
 public void telBuscaProcedimento(){
-         BuscProcedimentos tc = new BuscProcedimentos(null, true);
+         BuscaProcedimentos tc = new BuscaProcedimentos(null, true);
         tc.setVisible(true);
 
         if (tc.okselecionado()) {

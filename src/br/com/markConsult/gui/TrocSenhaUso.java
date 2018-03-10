@@ -6,8 +6,8 @@ package br.com.markConsult.gui;
 
 import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.dao.CadUsuarioDAO;
-import br.com.markConsult.dao.entidades.Sessao;
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Sessao;
+import br.com.markConsult.entidades.Usuario;
 import javax.swing.JOptionPane;
 
 /**

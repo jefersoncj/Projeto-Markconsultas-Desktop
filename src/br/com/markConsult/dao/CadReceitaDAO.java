@@ -4,8 +4,8 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Receita;
-import br.com.markConsult.dao.entidades.Paciente;
+import br.com.markConsult.entidades.Paciente;
+import br.com.markConsult.entidades.Receita;
 import br.com.markConsult.relatorios.ReportUtilsModal;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -61,36 +61,28 @@ public class CadReceitaDAO extends AbstractConecxaoDAO {
 			connection = getConnection();
 			beginTransaction(connection);
 			// GERAR O ID UNICO
-			String selectMaxID = "SELECT MAX(id) AS maxID FROM receita";
-
-			int maxID = 0;
-                        
-
-			// criar o statement
-			pstm = connection.prepareStatement(selectMaxID);
-			rs = pstm.executeQuery();
-			while (rs.next()) {
-				maxID = rs.getInt(1);
-			}
 
 			// criar o sql
-			String sql = "INSERT INTO receita VALUES ( ?, ?, ?, ?)";
+			String sql = "INSERT INTO receita (id_paciente, data_cadastro, descricao) VALUES (?, ?, ?)";
 
 			// criar o statement
-			pstm = connection.prepareStatement(sql);
+			pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
 			// setar os params
 			int index = 0;
-			pstm.setInt(++index, ++maxID);
+			
 			pstm.setInt(++index, receita.getPaciente().getId());
 			pstm.setDate(++index, receita.getDataCadastro());
 			pstm.setString(++index, receita.getDescricao());
 			
-			
-			pstm.execute();
-
+			 pstm.executeUpdate();
+                        rs = pstm.getGeneratedKeys();
+                        int id = 0;
+                        if (rs.next()) {
+                            id = rs.getInt(1);
+                        }
 			commitTransaction(connection);
-			idInserido = maxID;
+			idInserido = id;
 			
 		} catch (Exception e) {
 			
@@ -297,7 +289,7 @@ public class CadReceitaDAO extends AbstractConecxaoDAO {
               Receita ana = null;    
                       if (rs != null) {
                   
-                  Paciente cli = new Paciente(rs.getInt("id_paciente"),null);
+                  Paciente cli = new Paciente(rs.getInt("id_paciente"),null, null);
                   Receita con = new Receita(rs.getInt("id"), cli, rs.getDate("data_cadastro"), rs.getString("descricao"));
                   ana = con;
               }
@@ -314,7 +306,7 @@ public class CadReceitaDAO extends AbstractConecxaoDAO {
 			// pegar a connection
 			connection = getConnection();
 			beginTransaction(connection);
-			InputStream inputStream = getClass().getResourceAsStream("/receita.jasper");
+			InputStream inputStream = getClass().getResourceAsStream("/receita_1.jasper");
 
                 // mapa de parâmetros do relatório
                 Map parametros = new HashMap();

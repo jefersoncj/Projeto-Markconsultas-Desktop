@@ -5,7 +5,7 @@
 package br.com.markConsult.dao;
 
 
-import br.com.markConsult.dao.entidades.CondPagto;
+import br.com.markConsult.entidades.CondPagto;
 import java.util.List;
 
 /**

@@ -6,7 +6,7 @@ package br.com.markConsult.classesMetodos;
  */
 
 
-import br.com.markConsult.dao.entidades.Procedimento;
+import br.com.markConsult.entidades.Procedimento;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -24,9 +24,7 @@ public class ProcedimentosTableModel extends AbstractTableModel{
      NumberFormat nf = new DecimalFormat("#,##0.00");
 //constantes que vão representar as colunas
     private final int COL_ID = 0;
-    private final int COL_CONV = 1;
-    private final int COL_VALOR = 2;
-
+    private final int COL_NOME = 1;
     
     //lista dos produtos que serão exibidos
     private List<Procedimento> procedimentos;
@@ -60,31 +58,30 @@ public class ProcedimentosTableModel extends AbstractTableModel{
     
       @Override
     public String getColumnName(int column) {
-        //qual o nome da coluna
-        if (column == COL_ID) {
-            return "Código";
-        
-        }else if (column == COL_CONV) {
-            return "Convênio";
-        
-        }else if (column == COL_VALOR) {
-            return "Valor";
-        
-        }
+         //qual o nome da coluna
+         switch (column) {
+             case COL_ID:
+                 return "Código";
+             case COL_NOME:
+                 return "Descrição";
+             default:
+                 break;
+         }
         
         return "";
     }
       
       @Override
     public Class getColumnClass(int columnIndex) {
-       // retorna a classe que representa a coluna
-        if (columnIndex == COL_ID) {
-            return int.class;
-        } else if (columnIndex == COL_CONV) {
-            return String.class;
-        } else if (columnIndex == COL_VALOR) {
-            return String.class;
-       }
+         // retorna a classe que representa a coluna
+         switch (columnIndex) {
+             case COL_ID:
+                 return int.class;
+             case COL_NOME:
+                 return String.class;
+             default:
+                 break;
+         }
        
         return String.class;
       }
@@ -93,16 +90,15 @@ public class ProcedimentosTableModel extends AbstractTableModel{
         //pega o produto da linha
         Procedimento u = procedimentos.get(rowIndex);
  
-        //verifica qual valor deve ser retornado
-        if (columnIndex == COL_ID){
-            return u.getId();
-        } 
-        else if (columnIndex == COL_CONV) {
-            return u.getDsProcedimento();
-        }
-        else if (columnIndex == COL_VALOR) {
-            return nf.format(u.getValorProced());
-        }
+         //verifica qual valor deve ser retornado
+         switch (columnIndex) {
+             case COL_ID:
+                 return u.getId();
+             case COL_NOME:
+                 return u.getDsProcedimento();
+             default:
+                 break;
+         }
       
         return "";
     
@@ -113,6 +109,12 @@ public class ProcedimentosTableModel extends AbstractTableModel{
         fireTableDataChanged();
     }
       
+        public void inserir(Procedimento c) {
+        if(!procedimentos.contains(c)){
+           procedimentos.add(c);
+           fireTableDataChanged();
+        }
+    }
     
      @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -134,4 +136,19 @@ public class ProcedimentosTableModel extends AbstractTableModel{
  
         return procedimentos.get(pos);
     }
+    
+        public void removeProcedimento(int procedimento) {
+        procedimentos.remove(procedimento);
+        fireTableDataChanged();
+    }
+        
+        public void removeProcedimentos(List<Procedimento> procedimento) {
+            if (procedimento != null &&  !procedimento.isEmpty()) {
+                 procedimentos.removeAll(procedimento);
+                 fireTableDataChanged();
+            }
+       
+    }
+        
+    
 }

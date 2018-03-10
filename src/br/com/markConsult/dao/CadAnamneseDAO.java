@@ -4,8 +4,8 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Anamnese;
-import br.com.markConsult.dao.entidades.Paciente;
+import br.com.markConsult.entidades.Anamnese;
+import br.com.markConsult.entidades.Paciente;
 import br.com.markConsult.relatorios.ReportUtilsModal;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -34,9 +34,6 @@ public class CadAnamneseDAO extends AbstractConecxaoDAO {
 	 * @uml.property  name="idInserido"
 	 */
 	boolean idAlterado = false;
-	
-
-
 	/**
 	 * @uml.property  name="Anaminese"
 	 * @uml.associationEnd  
@@ -45,11 +42,7 @@ public class CadAnamneseDAO extends AbstractConecxaoDAO {
 	/**
 	 * @uml.property  name="anamnese"
 	 */
-	private List<Anamnese> anamneses = new ArrayList<>();
-
-
-	
-    
+	private final List<Anamnese> anamneses = new ArrayList<>();
         
               public Integer inserir(Anamnese anamnese) {
     
@@ -60,37 +53,25 @@ public class CadAnamneseDAO extends AbstractConecxaoDAO {
 			// pegar a connection
 			connection = getConnection();
 			beginTransaction(connection);
-			// GERAR O ID UNICO
-			String selectMaxID = "SELECT MAX(id) AS maxID FROM anamneses";
-
-			int maxID = 0;
-                        
-
-			// criar o statement
-			pstm = connection.prepareStatement(selectMaxID);
-			rs = pstm.executeQuery();
-			while (rs.next()) {
-				maxID = rs.getInt(1);
-			}
-
 			// criar o sql
-			String sql = "INSERT INTO anamneses VALUES ( ?, ?, ?, ?)";
+			String sql = "INSERT INTO anamneses (id_paciente, data_cadastro, descricao) VALUES (?, ?, ?)";
 
 			// criar o statement
-			pstm = connection.prepareStatement(sql);
+			 pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
 			// setar os params
 			int index = 0;
-			pstm.setInt(++index, ++maxID);
 			pstm.setInt(++index, anamnese.getPaciente().getId());
 			pstm.setDate(++index, anamnese.getDataCadastro());
 			pstm.setString(++index, anamnese.getDescricao());
-			
-			
-			pstm.execute();
-
+			pstm.executeUpdate();
+                        rs = pstm.getGeneratedKeys();
+                        int id = 0;
+                        if (rs.next()) {
+                            id = rs.getInt(1);
+                        }
 			commitTransaction(connection);
-			idInserido = maxID;
+			idInserido = id;
 			
 		} catch (Exception e) {
 			
@@ -249,8 +230,6 @@ public class CadAnamneseDAO extends AbstractConecxaoDAO {
 		return con;
     
     }
-
-        
         
         public List<Anamnese> datasAnamneses(int idPaciente) {
                 Anamnese con ;
@@ -271,8 +250,6 @@ public class CadAnamneseDAO extends AbstractConecxaoDAO {
             
 			con = retornObjeto(rs);
                         anamneses.add(con);
-                     
-                        
 			}
 
 		} catch (Exception e) {
@@ -288,20 +265,16 @@ public class CadAnamneseDAO extends AbstractConecxaoDAO {
         }
                  
           public Anamnese retornObjeto(ResultSet rs) throws SQLException{
-    
-    
               Anamnese ana = null;    
                       if (rs != null) {
                   
-                  Paciente cli = new Paciente(rs.getInt("id_paciente"),null);
+                  Paciente cli = new Paciente(rs.getInt("id_paciente"),null, null);
                   Anamnese con = new Anamnese(rs.getInt("id"), cli, rs.getDate("data_cadastro"), rs.getString("descricao"));
                   ana = con;
               }
               
             return ana;
           }
-     
-          
            public void ConectRelatorio(int id, int id_usu, int id_empresa){
 		Connection connection = null;
 		Statement stm = null;

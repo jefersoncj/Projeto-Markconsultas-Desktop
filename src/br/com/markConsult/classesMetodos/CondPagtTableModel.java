@@ -6,7 +6,7 @@ package br.com.markConsult.classesMetodos;
  */
 
 
-import br.com.markConsult.dao.entidades.CondPagto;
+import br.com.markConsult.entidades.CondPagto;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;

@@ -8,6 +8,9 @@
         <group name="Livre"/>
         <group name="Group 20141110-04:49:53"/>
         <group name="Trabalho"/>
-        <group/>
+        <group>
+            <file>file:/C:/markconsultas/src/br/com/markConsult/gui/CadConsultaModal.java</file>
+            <file>file:/C:/markconsultas/src/br/com/markConsult/gui/CadConsulta.java</file>
+        </group>
     </open-files>
 </project-private>

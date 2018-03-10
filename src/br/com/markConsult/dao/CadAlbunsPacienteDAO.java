@@ -4,8 +4,8 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Album;
-import br.com.markConsult.dao.entidades.Paciente;
+import br.com.markConsult.entidades.Album;
+import br.com.markConsult.entidades.Paciente;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

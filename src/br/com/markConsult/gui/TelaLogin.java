@@ -5,11 +5,11 @@
 package br.com.markConsult.gui;
 
 import br.com.markConsult.classesMetodos.FixedLengthDocument;
-import br.com.markConsult.dao.CadEmpresaDAO;
+import br.com.markConsult.dao.CadClinicaDAO;
 import br.com.markConsult.dao.CadUsuarioDAO;
-import br.com.markConsult.dao.entidades.Empresa;
-import br.com.markConsult.dao.entidades.Sessao;
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Sessao;
+import br.com.markConsult.entidades.Clinica;
+import br.com.markConsult.entidades.Usuario;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.net.ServerSocket;
@@ -25,7 +25,7 @@ import javax.swing.JOptionPane;
  */
 public class TelaLogin extends javax.swing.JFrame {
     private static ServerSocket s; 
-    List<Empresa> e;
+    List<Clinica> e;
   
 
     /**
@@ -52,9 +52,9 @@ public class TelaLogin extends javax.swing.JFrame {
         tf_usuario.setDocument(new  FixedLengthDocument(15));
         tf_senha.setDocument(new  FixedLengthDocument(10));
         tf_usuario.requestFocus();
-        CadEmpresaDAO dao = new CadEmpresaDAO();
+        CadClinicaDAO dao = new CadClinicaDAO();
          e =  dao.buscaEpresa("", 'e');
-        for (Empresa e1 : e) {
+        for (Clinica e1 : e) {
             jC_empresa.addItem(e1.getFantasia());
         }
         
@@ -339,7 +339,7 @@ public void okSelcionado(){
         if (us != null) {
           Sessao sessao = Sessao.getInstance();
           sessao.setUsuario(us);
-          sessao.setEmpresa(e.get(0));
+          sessao.setClinica(e.get(0));
             dispose();
             TrocaSenha troca =   new TrocaSenha(null, true);
             troca.setaUsu(usu);
@@ -355,7 +355,7 @@ public void okSelcionado(){
            if (us != null) {
                Sessao sessao = Sessao.getInstance();
           sessao.setUsuario(us);
-          sessao.setEmpresa(e.get(0));
+          sessao.setClinica(e.get(0));
            dispose();
            TelaPrincipal t =  new TelaPrincipal();
            t.setVisible(true);

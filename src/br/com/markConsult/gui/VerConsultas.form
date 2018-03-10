@@ -57,20 +57,20 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuIt_retornoActionPerformed"/>
           </Events>
         </MenuItem>
-        <MenuItem class="javax.swing.JMenuItem" name="jMenuIt_Procedimento">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Marcar Procedimento"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuIt_ProcedimentoActionPerformed"/>
-          </Events>
-        </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="jMenuIt_NovaCon">
           <Properties>
             <Property name="text" type="java.lang.String" value="Nova Consulta"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuIt_NovaConActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="jMenuIt_verProcedimentos">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Ver procedimento"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuIt_verProcedimentosActionPerformed"/>
           </Events>
         </MenuItem>
       </SubComponents>
@@ -154,6 +154,9 @@
               <Table columnCount="0" rowCount="0"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTConsultasMousePressed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

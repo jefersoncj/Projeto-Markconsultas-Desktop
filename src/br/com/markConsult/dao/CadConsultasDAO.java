@@ -6,13 +6,18 @@
 
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Paciente;
-import br.com.markConsult.dao.entidades.CondPagto;
-import br.com.markConsult.dao.entidades.Consulta;
-import br.com.markConsult.dao.entidades.Convenio;
-import br.com.markConsult.dao.entidades.Usuario;
-import br.com.markConsult.dao.entidades.Procedimento;
-import br.com.markConsult.dao.entidades.Tipo;
+import br.com.markConsult.entidades.Sessao;
+import br.com.markConsult.entidades.CondPagto;
+import br.com.markConsult.entidades.Consulta;
+import br.com.markConsult.entidades.ConsultaProcedimento;
+import br.com.markConsult.entidades.Convenio;
+import br.com.markConsult.entidades.Empresa;
+import br.com.markConsult.entidades.EmpresaProcedimento;
+import br.com.markConsult.entidades.Funcao;
+import br.com.markConsult.entidades.Paciente;
+import br.com.markConsult.entidades.Procedimento;
+import br.com.markConsult.entidades.Tipo;
+import br.com.markConsult.entidades.Usuario;
 import br.com.markConsult.relatorios.ReportUtils;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -50,6 +55,7 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
         this.idAlterado = false;
     }
     private final ArrayList<Consulta> consultas = new ArrayList<>();
+    private final List<Paciente> p = new ArrayList<>();
     @Override
     public Integer inseConsult(Consulta consulta) {
                 Connection connection = null;
@@ -70,78 +76,13 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
 				maxSEQ = rs.getInt(1);
 			}
                         
-                        String sql;
-                        Integer idConv = consulta.getConvenio().getId();
-                        Integer idProc = consulta.getProcedimento().getId();
-                         if (idConv == null && idProc == null) {
-                             sql = "INSERT INTO consultas (id_paciente, data_consulta, status, sequencia, "
-                                     + "obs, valor, id_cond_pagto, id_medico,cod_tipo,prioritario,cod_autorizacao)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
-                             pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-                             int index = 0;
-                            pstm.setInt(++index, consulta.getPaciente().getId());
-                            pstm.setDate(++index, consulta.getDataConsulta());
-                            pstm.setInt(++index, consulta.getStatus());
-                            pstm.setInt(++index, ++maxSEQ);
-                            pstm.setString(++index, consulta.getObs());
-                            pstm.setDouble(++index, consulta.getValor());
-                            pstm.setInt(++index, consulta.getCondPagt().getId());
-                            pstm.setInt(++index, consulta.getUsuario().getId());
-                            pstm.setInt(++index, consulta.getTipo().getId());
-                            pstm.setBoolean(++index, consulta.isPrioritario());
-                            pstm.setString(++index, consulta.getCodAutorizacao());
-                            
-                            
-                        }else if(idConv != null && idProc == null){
-			
-			 sql = "INSERT INTO consultas (id_convenio, id_paciente, data_consulta, status, sequencia,"
-                                 + " obs, valor, id_cond_pagto, id_medico, cod_tipo, prioritario,cod_autorizacao)"
-                                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                         pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-                         
-                            int index = 0;
-                            pstm.setInt(++index, idConv);
-                            pstm.setInt(++index, consulta.getPaciente().getId());
-                            pstm.setDate(++index, consulta.getDataConsulta());
-                            pstm.setInt(++index, consulta.getStatus());
-                            pstm.setInt(++index, ++maxSEQ);
-                            pstm.setString(++index, consulta.getObs());
-                            pstm.setDouble(++index, consulta.getValor());
-                            pstm.setInt(++index, consulta.getCondPagt().getId());
-                            pstm.setInt(++index, consulta.getUsuario().getId());
-                            pstm.setInt(++index, consulta.getTipo().getId());
-                            pstm.setBoolean(++index, consulta.isPrioritario());
-                            pstm.setString(++index, consulta.getCodAutorizacao());
-                         }
-                         else if(idProc != null && idConv == null){
-			
-			 sql = "INSERT INTO consultas (id_paciente, data_consulta, status, sequencia,"
-                                 + " obs, valor, id_cond_pagto, id_medico, cod_tipo, cod_procedimento,prioritario,cod_autorizacao)"
-                                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
-                         pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-                         
-                            int index = 0;
-                            pstm.setInt(++index, consulta.getPaciente().getId());
-                            pstm.setDate(++index, consulta.getDataConsulta());
-                            pstm.setInt(++index, consulta.getStatus());
-                            pstm.setInt(++index, ++maxSEQ);
-                            pstm.setString(++index, consulta.getObs());
-                            pstm.setDouble(++index, consulta.getValor());
-                            pstm.setInt(++index, consulta.getCondPagt().getId());
-                            pstm.setInt(++index, consulta.getUsuario().getId());
-                            pstm.setInt(++index, consulta.getTipo().getId());
-                            pstm.setInt(++index, consulta.getProcedimento().getId());
-                            pstm.setBoolean(++index, consulta.isPrioritario());
-                            pstm.setString(++index, consulta.getCodAutorizacao());
-                         }
-                           else if(idConv != null && idProc != null ){
-			
-			 sql = "INSERT INTO consultas (id_convenio, id_paciente, data_consulta, status, sequencia, "
-                                 + "obs, valor, id_cond_pagto, id_medico, cod_tipo, cod_procedimento, prioritario, cod_autorizacao)"
+                        String  sql = "INSERT INTO consultas (id_convenio, id_paciente, data_consulta, status, sequencia, "
+                                 + "obs, valor, id_cond_pagto, id_medico, cod_tipo, prioritario, cod_autorizacao, id_empresa)"
                                  + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                          pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
                          
                             int index = 0;
-                            pstm.setInt(++index, idConv);
+                            pstm.setInt(++index,consulta.getConvenio().getId());
                             pstm.setInt(++index, consulta.getPaciente().getId());
                             pstm.setDate(++index, consulta.getDataConsulta());
                             pstm.setInt(++index, consulta.getStatus());
@@ -151,10 +92,10 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                             pstm.setInt(++index, consulta.getCondPagt().getId());
                             pstm.setInt(++index, consulta.getUsuario().getId());
                             pstm.setInt(++index, consulta.getTipo().getId());
-                            pstm.setInt(++index, consulta.getProcedimento().getId());
                             pstm.setBoolean(++index, consulta.isPrioritario());
                             pstm.setString(++index, consulta.getCodAutorizacao());
-                         }
+                            pstm.setInt(++index, consulta.getPaciente().getId());
+                         
 			
 			// executar
 			pstm.executeUpdate();
@@ -165,6 +106,46 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                         }
 			commitTransaction(connection);
 			idInserido = id;
+                      
+			inserirProcedimentosConsulta(consulta.getConsultaProcedimento(), id);
+		} catch (Exception e) {
+			
+			try {
+				rollbackTransaction(connection);
+			} catch (SQLException e1) {
+				throw new IllegalStateException();
+			}
+		} finally {
+			cleanup(rs, pstm, connection);
+		}
+		return idInserido; 
+    }
+    
+     public Integer inserirProcedimentosConsulta( List<ConsultaProcedimento> consultaProceidmento, int idConsulta) {
+                Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		try {
+			// pegar a connection
+			connection = getConnection();
+			beginTransaction(connection);
+			// GERAR O ID UNICO
+                    for (ConsultaProcedimento consultaProcedimento : consultaProceidmento) {
+                        if(consultaProcedimento.getId() == null){
+                            String  sql = "INSERT INTO procedimento_consulta (id_consulta, id_procedimento_empresa, valor, status)"
+                                     + "VALUES (?, ?, ?, ?)";
+                                pstm = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+                                int index = 0;
+                                pstm.setInt(++index,idConsulta);
+                                pstm.setInt(++index, consultaProcedimento.getEmpresaProcedimento().getId());
+                                pstm.setDouble(++index, consultaProcedimento.getValor());
+                                pstm.setString(++index, consultaProcedimento.getStatus());
+                            // executar
+                            pstm.executeUpdate();   
+                         }
+                    }
+
+			commitTransaction(connection);
 			
 		} catch (Exception e) {
 			
@@ -178,8 +159,8 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
 		}
 		return idInserido; 
     }
-
-    @Override
+  
+     @Override
     public boolean altConsult(Consulta consulta) {
                 Connection connection = null;
 		PreparedStatement pstm = null;
@@ -191,11 +172,9 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                 beginTransaction(connection);
               
                         // criar o sql
-                String sql;
-                Integer codProce = consulta.getProcedimento().getId();
-                    if (codProce == null || codProce == 0) {
-                        sql = "UPDATE consultas SET id_convenio = ? , id_paciente = ?, obs = ?, data_consulta = ?, "
-                        + "valor = ?, id_cond_pagto = ? , id_medico = ?, status = ?, cod_tipo = ?, cod_procedimento = ?, fila = ?, prioritario = ?, cod_autorizacao = ?  WHERE id = ?"; 
+                String sql = "UPDATE consultas SET id_convenio = ? , id_paciente = ?, obs = ?, data_consulta = ?, "
+                        + "valor = ?, id_cond_pagto = ? , id_medico = ?, status = ?, cod_tipo = ?, fila = ?, "
+                        + "prioritario = ?, cod_autorizacao = ?, id_empresa = ? WHERE id = ?"; 
                          pstm = connection.prepareStatement(sql);
                           // setar os params      
                         int index = 0;
@@ -208,38 +187,17 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                         pstm.setInt(++index, consulta.getUsuario().getId());
                         pstm.setInt(++index, consulta.getStatus());
                         pstm.setInt(++index, consulta.getTipo().getId());
-                        pstm.setNull(++index, java.sql.Types.INTEGER );
                         pstm.setBoolean(++index, consulta.isFila());
                         pstm.setBoolean(++index, consulta.isPrioritario());
                         pstm.setString(++index, consulta.getCodAutorizacao());
+                        pstm.setInt(++index, consulta.getPaciente().getId());
                         pstm.setInt(++index, consulta.getId());
-                    }else{
-                           sql = "UPDATE consultas SET id_convenio = ? , id_paciente = ?, obs = ?, data_consulta = ?, "
-                        + "valor = ?, id_cond_pagto = ? , id_medico = ?, status = ?, cod_tipo = ?, cod_procedimento = ?, fila = ?, prioritario = ?, cod_autorizacao = ? WHERE id = ?"; 
-                         pstm = connection.prepareStatement(sql);
-                          // setar os params      
-                        int index = 0;
-                        pstm.setInt(++index, consulta.getConvenio().getId());
-                        pstm.setInt(++index, consulta.getPaciente().getId());
-                        pstm.setString(++index, consulta.getObs());
-                        pstm.setDate(++index, consulta.getDataConsulta());
-                        pstm.setDouble(++index, consulta.getValor());
-                        pstm.setInt(++index, consulta.getCondPagt().getId());
-                        pstm.setInt(++index, consulta.getUsuario().getId());
-                        pstm.setInt(++index, consulta.getStatus());
-                        pstm.setInt(++index, consulta.getTipo().getId());
-                        pstm.setInt(++index, consulta.getProcedimento().getId());
-                        pstm.setBoolean(++index, consulta.isFila());
-                        pstm.setBoolean(++index, consulta.isPrioritario());
-                        pstm.setString(++index, consulta.getCodAutorizacao());
-                        pstm.setInt(++index, consulta.getId());  
-                    }
-
                 // executar
                 pstm.execute();
 
                 commitTransaction(connection);
                 idAlterado = true;
+                inserirProcedimentosConsulta(consulta.getConsultaProcedimento(), consulta.getId());
 
         } catch (Exception e) {
                 idAlterado = false;
@@ -256,7 +214,71 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
     
     } 
     
-       
+        public boolean removerConsultaProcedimento(List<ConsultaProcedimento> consultaProcedimentos) {
+        boolean excluido = false;
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            // pegar a connection
+            connection = getConnection();
+            beginTransaction(connection);
+            for (ConsultaProcedimento consultaProcedimento : consultaProcedimentos) {
+                if (consultaProcedimento.getId() != null) {
+                    String sql = "delete from procedimento_consulta where id = ?";
+
+                    pstm = connection.prepareStatement(sql);
+                    pstm.setInt(1, consultaProcedimento.getId());
+                    pstm.execute();
+                    commitTransaction(connection);
+                }
+            }
+            excluido = true;
+                        
+        } catch (Exception e) {
+            try {
+                rollbackTransaction(connection);
+            } catch (SQLException e1) {
+                throw new IllegalStateException();
+            }
+        } finally {
+            cleanup(rs, pstm, connection);
+        }
+        return excluido;
+    }
+    
+      public boolean removerConsultasProcedimentos(List<ConsultaProcedimento> consultaProcedimento) {
+        boolean excluido = false;
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try {
+            // pegar a connection
+            connection = getConnection();
+            beginTransaction(connection);
+            for (ConsultaProcedimento procedimentos : consultaProcedimento) {
+                if (procedimentos.getId() != null) {
+                    String sql = "delete from procedimento_consulta where id = ?";
+
+                    pstm = connection.prepareStatement(sql);
+                    pstm.setInt(1, procedimentos.getId());
+                    pstm.execute();
+                    commitTransaction(connection);
+                }
+            }
+            excluido = true;
+                        
+        } catch (Exception e) {
+            try {
+                rollbackTransaction(connection);
+            } catch (SQLException e1) {
+                throw new IllegalStateException();
+            }
+        } finally {
+            cleanup(rs, pstm, connection);
+        }
+        return excluido;
+    }
         @Override
     public boolean altStatConsult(List<Consulta> consulta) {
                 Connection connection = null;
@@ -279,6 +301,49 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                         pstm.setInt(2, consulta1.getId());
                         
                         
+                        // executar
+                        pstm.execute();
+                        
+                        commitTransaction(connection);
+                        idAlterado = true;
+                    }
+               
+                
+               
+
+        } catch (Exception e) {
+                idAlterado = false;
+                try {
+                        rollbackTransaction(connection);
+                } catch (SQLException e1) {
+                        throw new IllegalStateException();
+                }
+        } finally {
+                cleanup(rs, pstm, connection);
+        }
+        return idAlterado;
+    
+    
+    } 
+    public boolean altStatProcedimento(List<ConsultaProcedimento> consultaProcedimento) {
+                Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		try {
+                    
+            // pegar a connection
+                connection = getConnection();
+                beginTransaction(connection);
+                // criar o sql
+                String sql = "UPDATE procedimento_consulta SET status = ?  WHERE id = ?";
+                
+                
+                // criar o statement
+                pstm = connection.prepareStatement(sql);
+                    for (ConsultaProcedimento consulta1 : consultaProcedimento) {
+                        // setar os params
+                        pstm.setString(1, consulta1.getStatus());
+                        pstm.setInt(2, consulta1.getId());
                         // executar
                         pstm.execute();
                         
@@ -444,14 +509,14 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
 			beginTransaction(connection);
 
 			// CRIAR SQL
-			String sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
+			String sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia  "
                                 + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
                                 + "WHERE consultas.id = ? ";
 
 			// criar o statement
@@ -492,48 +557,48 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                 String sql="";
                 switch (tipo) {
                 case 'e':
-                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
-                                + "FROM pacientes "
+                    sql ="SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia  "
+                                + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = pacientes.id_empresa "
                                 + "WHERE nome LIKE '%"+dado+"%' AND status IN ("+status+") ORDER BY data_consulta ASC";
                         break;
                 case 'i':
-                        sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
-                                + "FROM pacientes "
+                        sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia  "
+                                + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
                                 + "WHERE data_consulta = '"+dado+"' AND status IN ("+status+") ORDER BY data_consulta ASC";
                         break;
                 case 't':
-                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
-                                + "FROM pacientes "
+                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia  "
+                                + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
                                 + "WHERE status IN ("+status+")  ORDER BY data_consulta ASC";
                        
                         break;
                 case 'a':
-                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
-                                + "FROM pacientes "
+                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia  "
+                                + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
                                 + "WHERE id_paciente = '"+dado+"' OR num_convenio = '"+dado+"' AND status IN ("+status+") ORDER BY data_consulta ASC";
                     break;
            
@@ -563,6 +628,129 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
         return consultas;
     }
     
+    public List<Consulta> buscaConsultasPorIdPaciente(Paciente p) {
+        Consulta con;
+        Connection connection = null;
+        Statement stm = null;
+        ResultSet rs = null;
+        try {
+                // pegar a connection
+                connection = getConnection();
+                beginTransaction(connection);
+                // CRIAR SQL
+                String sql="SELECT  id,data_consulta FROM consultas WHERE id_paciente = '"+p.getId()+"' ORDER BY data_consulta ASC";
+                // criar o statement
+                stm = connection.createStatement();
+                rs = stm.executeQuery(sql);
+                while (rs.next()) {
+                 
+                 con = retornObjDatasConsultas(rs);
+                 consultas.add(con);
+                }
+
+        } catch (Exception e) {
+                try {
+                        rollbackTransaction(connection);
+                } catch (SQLException e1) {
+                        throw new IllegalStateException();
+                }
+        } finally {
+                cleanup(rs, stm, connection);
+        }
+        return consultas;
+    }  
+    public List<Paciente> buscaPacienteAtualiza() {
+        
+        Paciente pa;
+        Connection connection = null;
+        Statement stm = null;
+        ResultSet rs = null;
+        try {
+                // pegar a connection
+                connection = getConnection();
+                beginTransaction(connection);
+                // CRIAR SQL
+                String sql="SELECT * from pacientes";
+                // criar o statement
+                stm = connection.createStatement();
+                rs = stm.executeQuery(sql);
+                while (rs.next()) {
+                 
+                 pa = new Paciente();
+                Empresa empresa = new Empresa();
+                empresa.setId(rs.getInt("id_empresa"));
+                pa.setEmpresa(empresa);
+//                
+//                 Funcao f = new Funcao();
+//                 f.setId(rs.getInt("id_funcao"));
+//                 pa.setFuncao(f);
+//                 
+//                 Convenio convenio = new Convenio();
+//                 convenio.setId(rs.getInt("id_convenio"));
+//                 pa.setConvenio(convenio);
+//                    System.out.println(rs.getInt("id_convenio"));
+//                 
+                 pa.setId(rs.getInt("id"));
+               
+                
+                 p.add(pa);
+                }
+
+        } catch (Exception e) {
+                try {
+                        rollbackTransaction(connection);
+                } catch (SQLException e1) {
+                        throw new IllegalStateException();
+                }
+        } finally {
+                cleanup(rs, stm, connection);
+        }
+        return p;
+    }  
+    
+    public boolean altearAtualiza(List<Paciente> paciente) {
+                Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		try {
+                    
+            // pegar a connection
+                connection = getConnection();
+                beginTransaction(connection);
+                // criar o sql
+                String sql = "UPDATE acuidade_visual SET id_empresa = ?  WHERE id_paciente = ?";
+                
+                // criar o statement
+                pstm = connection.prepareStatement(sql);
+                    for (Paciente pa : paciente) {
+                        // setar os params
+                        pstm.setInt(1, pa.getEmpresa().getId());
+                        pstm.setInt(2, pa.getId());
+                        
+                        
+                        // executar
+                        if( pa.getEmpresa().getId()!= 0){
+                        pstm.execute();
+                        commitTransaction(connection);
+                        }
+                        idAlterado = true;
+                    }
+
+        } catch (Exception e) {
+                idAlterado = false;
+                try {
+                        rollbackTransaction(connection);
+                } catch (SQLException e1) {
+                        throw new IllegalStateException();
+                }
+        } finally {
+                cleanup(rs, pstm, connection);
+        }
+        return idAlterado;
+    
+    
+    }
+    
     @Override
      public List<Consulta> buscaConPstat(int coluna ,String dados, String status) {
         Consulta con;
@@ -577,25 +765,25 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                 String sql="";
                 switch (coluna) {
                 case 0:
-                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
-                                + "FROM pacientes "
+                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia  "
+                                + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
                                 + "WHERE nome LIKE '%"+dados+"%' AND status IN ("+status+") ORDER BY data_consulta ASC";
                         break;
                 case 1:
-                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
-                                + "FROM pacientes "
+                    sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia "
+                                + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
                                 + "WHERE data_consulta = '"+dados+"' AND status IN ("+status+") ORDER BY data_consulta ASC";
                         break;
                
@@ -638,14 +826,14 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                
             
               
-                   String   sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
-                                + "FROM pacientes "
+                   String   sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia "
+                                + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
                                 + "WHERE data_consulta = '"+dados+"' AND status IN ("+status+")  AND consultas.fila = true ORDER BY sequencia ASC";
                 
 
@@ -680,14 +868,14 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
 			beginTransaction(connection);
 
 			// CRIAR SQL
-			String sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, procedimento.* "
-                                + "FROM pacientes "
+			String sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia "
+                                + " FROM pacientes "
                                 + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
                                 + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
                                 + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
                                 + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
                                 + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
-                                + "LEFT JOIN procedimento ON procedimento.id = consultas.cod_procedimento "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
                                 + "WHERE data_consulta = '"+data+"' ORDER BY sequencia ASC";
 
 			// criar o statement
@@ -713,8 +901,186 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
 		}
 		return consultas;    
         }
-    
+        public List<Consulta> buscConsPdataEnome(Date data , String nome) {
+                Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		try {
+			// pegar a connection
+			connection = getConnection();
+			beginTransaction(connection);
 
+			// CRIAR SQL
+			String sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia "
+                                + " FROM pacientes "
+                                + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
+                                + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
+                                + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
+                                + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
+                                + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
+                                + "WHERE data_consulta = '"+data+"' and nome LIKE '%"+nome+"%' ORDER BY sequencia ASC";
+
+			// criar o statement
+			pstm = connection.prepareStatement(sql);
+			rs = pstm.executeQuery();
+	
+			while (rs.next()) {
+                        
+                        Consulta c = retornObj(rs);
+               
+                                consultas.add(c);
+								
+			}
+
+		} catch (Exception e) {
+			try {
+				rollbackTransaction(connection);
+			} catch (SQLException e1) {
+				throw new IllegalStateException();
+			}
+		} finally {
+			cleanup(rs, pstm, connection);
+		}
+		return consultas;    
+        }
+        public List<Consulta> buscConsPdataEnomeNaFila(Date data , String nome) {
+                Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		try {
+			// pegar a connection
+			connection = getConnection();
+			beginTransaction(connection);
+
+			// CRIAR SQL
+			String sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia "
+                                + " FROM pacientes "
+                                + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
+                                + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
+                                + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
+                                + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
+                                + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
+                                + "WHERE data_consulta = '"+data+"' and nome LIKE '%"+nome+"%' and fila = true ORDER BY sequencia ASC";
+
+			// criar o statement
+			pstm = connection.prepareStatement(sql);
+			rs = pstm.executeQuery();
+	
+			while (rs.next()) {
+                        
+                        Consulta c = retornObj(rs);
+               
+                                consultas.add(c);
+								
+			}
+
+		} catch (Exception e) {
+			try {
+				rollbackTransaction(connection);
+			} catch (SQLException e1) {
+				throw new IllegalStateException();
+			}
+		} finally {
+			cleanup(rs, pstm, connection);
+		}
+		return consultas;    
+        }
+        public List<Consulta> buscConsEProcedimentoPorData(Date data) {
+                Connection connection = null;
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+		try {
+			// pegar a connection
+			connection = getConnection();
+			beginTransaction(connection);
+
+			// CRIAR SQL
+			String sql = "SELECT  consultas.*,pacientes.nome,num_convenio, convenios.ds_convenio, cond_pagto.descricao, usuarios.usuario, tipo_consulta.*, empresa.id AS id_empresa,fantasia "
+                                + " FROM pacientes "
+                                + "LEFT JOIN consultas ON consultas.id_paciente = pacientes.id "
+                                + "LEFT JOIN convenios ON convenios.id = consultas.id_convenio "
+                                + "LEFT JOIN cond_pagto ON cond_pagto.id = consultas.id_cond_pagto "
+                                + "LEFT JOIN usuarios ON usuarios.id = consultas.id_medico "
+                                + "LEFT JOIN tipo_consulta ON tipo_consulta.id = consultas.cod_tipo "
+                                + "LEFT JOIN empresa ON empresa.id = consultas.id_empresa "
+                                + "WHERE data_consulta = '"+data+"' ORDER BY sequencia ASC";
+
+			// criar o statement
+			pstm = connection.prepareStatement(sql);
+			rs = pstm.executeQuery();
+	
+			while (rs.next()) {
+                        
+                        Consulta c = retornObj(rs);
+               
+                                consultas.add(c);
+								
+			}
+
+		} catch (Exception e) {
+			try {
+				rollbackTransaction(connection);
+			} catch (SQLException e1) {
+				throw new IllegalStateException();
+			}
+		} finally {
+			cleanup(rs, pstm, connection);
+		}
+		return consultas;    
+        }
+
+        public List<ConsultaProcedimento> BuscaProcedimetoEmpresa(String nome, char ds_procedimento,int id_consulta) {
+		ArrayList<ConsultaProcedimento> consultaProcedimentos = new ArrayList<>();
+                ConsultaProcedimento ep ;
+		Connection connection = null;
+		Statement stm = null;
+		ResultSet rs = null;
+		try {
+			// pegar a connection
+			connection = getConnection();
+			beginTransaction(connection);
+			// CRIAR SQL
+			String sql="";
+			switch (ds_procedimento) {
+			case 'e':
+				sql = "SELECT procedimento_consulta.*, procedimento.ds_procedimento, procedimento_empresa.id AS id_empresa_procedimen "
+                                        + "FROM procedimento_consulta LEFT JOIN procedimento_empresa ON procedimento_consulta.id_procedimento_empresa = procedimento_empresa.id "
+                                        + "LEFT JOIN procedimento ON procedimento.id = procedimento_empresa.id_procedimento "
+                                        + " WHERE ds_procedimento like ('%"+nome+"%') and id_consulta = ('"+id_consulta+"') ORDER BY procedimento_consulta.id ASC ";
+				break;
+			case 'i':
+				sql = "SELECT procedimento_consulta.*, procedimento.ds_procedimento, procedimento_empresa.id AS id_empresa_procedimen "
+                                        + "FROM procedimento_consulta LEFT JOIN procedimento_empresa ON procedimento_consulta.id_procedimento_empresa = procedimento_empresa.id "
+                                        + "LEFT JOIN procedimento ON procedimento.id = procedimento_empresa.id_procedimento "
+                                        + "WHERE id_procedimento =('"+nome+"') and id_consulta = ('"+id_consulta+"') ORDER BY procedimento_consulta.id ASC ";
+				break;
+			
+			default:
+				break;
+			}
+			
+			// criar o statement
+			stm = connection.createStatement();
+			rs = stm.executeQuery(sql);
+			while (rs.next()) {
+            
+			ep = retornProcedimentoConsulta(rs);       
+                        consultaProcedimentos.add(ep);
+			}
+
+		} catch (Exception e) {
+			try {
+				rollbackTransaction(connection);
+			} catch (SQLException e1) {
+				throw new IllegalStateException();
+			}
+		} finally {
+			cleanup(rs, stm, connection);
+		}
+		return consultaProcedimentos;  
+    }
 
     @Override
     public Consulta buscConsPCli(int idPaciente) {
@@ -767,22 +1133,61 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                         condPagto.setCondPagt(rs.getString("descricao"));
                         conv.setId(rs.getInt("id_convenio"));
                         conv.setDsConvenio(rs.getString("ds_convenio"));
-                        Procedimento proce = new Procedimento(rs.getInt("cod_procedimento"), rs.getString("ds_procedimento"));
-                        Paciente  paciente = new Paciente(rs.getInt("id_paciente"),rs.getString("num_convenio"), rs.getString("nome"));
+                        Empresa empresa = new Empresa(rs.getInt("id_empresa"), rs.getString("fantasia"));
+                        Paciente  paciente = new Paciente(rs.getInt("id_paciente"),rs.getString("num_convenio"), rs.getString("nome"),empresa,null);
                         Usuario  usuario = new Usuario(rs.getInt("id_medico"),rs.getString("usuario"));
-                       
                         Tipo tipo = new Tipo(rs.getInt("cod_tipo"), rs.getString("tipo"));
                          c = new Consulta(rs.getInt("id"), conv,paciente, usuario,rs.getDate("data_consulta"), rs.getInt("status"),
                                 rs.getInt("sequencia"), rs.getString("obs"), rs.getDouble("valor"),condPagto, 
-                                 tipo,proce,rs.getBoolean("fila"),rs.getBoolean("prioritario"),rs.getString("cod_autorizacao"));
+                                 tipo,null,rs.getBoolean("fila"),rs.getBoolean("prioritario"),rs.getString("cod_autorizacao"));
                          
              }
             return c;
          }
+//         public Consulta retornConsultasProcedimentos(ResultSet rs) throws SQLException{
+//             Consulta c = null;
+//             if (rs != null) {
+//                        Convenio conv = new Convenio();
+//                        CondPagto  condPagto = new CondPagto();
+//                        condPagto.setId(rs.getInt("id_cond_pagto"));
+//                        condPagto.setCondPagt(rs.getString("descricao"));
+//                        conv.setId(rs.getInt("id_convenio"));
+//                        conv.setDsConvenio(rs.getString("ds_convenio"));
+//                        Empresa empresa = new Empresa(rs.getInt("id_empresa"), rs.getString("fantasia"));
+//                        Paciente  paciente = new Paciente(rs.getInt("id_paciente"),rs.getString("num_convenio"), rs.getString("nome"),empresa);
+//                        Usuario  usuario = new Usuario(rs.getInt("id_medico"),rs.getString("usuario"));
+//                        Tipo tipo = new Tipo(rs.getInt("cod_tipo"), rs.getString("tipo"));
+//                         c = new Consulta(rs.getInt("id"), conv,paciente, usuario,rs.getDate("data_consulta"), rs.getInt("status"),
+//                                rs.getInt("sequencia"), rs.getString("obs"), rs.getDouble("valor"),condPagto, 
+//                                 tipo,BuscaProcedimetoEmpresa("",'e',rs.getInt("id")),rs.getBoolean("fila"),rs.getBoolean("prioritario"),rs.getString("cod_autorizacao"));
+//                         
+//             }
+//            return c;
+//         }
          
-         
-         
-         public void ConectRelatorio(Date init ,Date fin, String clien, String status, String convenio, String condPagt,String usuario, String ordem, int id_empresa){
+          public Consulta retornObjDatasConsultas(ResultSet rs) throws SQLException{
+             Consulta c = null;
+             if (rs != null) {
+                       
+                         c = new Consulta();
+                         c.setId(rs.getInt("id"));
+                         c.setDataConsulta(rs.getDate("data_consulta"));
+             }
+            return c;
+         }
+    public ConsultaProcedimento retornProcedimentoConsulta(ResultSet rs) throws SQLException {
+        ConsultaProcedimento conp = null;
+        if (rs != null) {
+            Empresa emp = new Empresa();
+            Procedimento proce = new Procedimento(null, rs.getString("ds_procedimento"));
+            EmpresaProcedimento empresaProcedimento = new EmpresaProcedimento(rs.getInt("id_procedimento_empresa"),emp, proce);
+            ConsultaProcedimento cp = new ConsultaProcedimento(rs.getInt("id"), false ,empresaProcedimento, rs.getDouble("valor"),rs.getString("status"));
+            conp = cp;
+        }
+
+        return conp;
+    }
+         public void ConectRelatorio(Date init ,Date fin, String clien, String status, String convenio, String condPagt,String usuario, String ordem, int id_minha_empresa, String id_empresa){
 		Connection connection = null;
 		Statement stm = null;
 		ResultSet rs = null;
@@ -790,7 +1195,7 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
 			// pegar a connection
 			connection = getConnection();
 			beginTransaction(connection);
-			InputStream inputStream = getClass().getResourceAsStream("/consultas.jasper");
+			InputStream inputStream = getClass().getResourceAsStream("/consulta_procedimentos_2.jasper");
             
            
                 // mapa de parâmetros do relatório
@@ -804,11 +1209,90 @@ public class CadConsultasDAO extends AbstractConecxaoDAO implements ICadConsulta
                 parametros.put("med", usuario);
                 parametros.put("ordem", ordem);
                 parametros.put("id_empresa", id_empresa);
+                parametros.put("id_minha_empresa", id_minha_empresa);
                
               
                
                
                     // abre o relatório
+                    ReportUtils.openReport("Relatório de consultas", inputStream, parametros, connection);                    
+                    
+
+		} catch (Exception e) {
+			try {
+                            System.out.println(e.getMessage());
+				rollbackTransaction(connection);
+			} catch (SQLException e1) {
+				throw new IllegalStateException();
+			}
+		} finally {
+			cleanup(rs, stm, connection);
+		}  
+     }
+         public void ConectRelatorio2(Date init ,Date fin, String status, String condPagt,String usuario, String ordem, int id_empresa){
+		Connection connection = null;
+		Statement stm = null;
+		ResultSet rs = null;
+		try {
+			// pegar a connection
+			connection = getConnection();
+			beginTransaction(connection);
+			InputStream inputStream = getClass().getResourceAsStream("/rela_movimento.jasper");
+            
+           
+                // mapa de parâmetros do relatório
+                Map parametros = new HashMap();
+                parametros.put("stat", status);
+                parametros.put("dataIn", init);
+                parametros.put("dataFin", fin);
+                parametros.put("condPg", condPagt);
+                parametros.put("med", usuario);
+                parametros.put("ordem", ordem);
+                parametros.put("id_empresa", id_empresa);
+               
+              
+               
+               
+                    // abre o relatório
+                    ReportUtils.openReport("Relatório de consultas", inputStream, parametros, connection);                    
+                    
+
+		} catch (Exception e) {
+			try {
+                            System.out.println(e.getMessage());
+				rollbackTransaction(connection);
+			} catch (SQLException e1) {
+				throw new IllegalStateException();
+			}
+		} finally {
+			cleanup(rs, stm, connection);
+		}  
+     }
+         public void imprimirContula(int idConsulta,Boolean comValor, Integer sequencia){
+		Connection connection = null;
+		Statement stm = null;
+		ResultSet rs = null;
+		try {
+			// pegar a connection
+			connection = getConnection();
+			beginTransaction(connection);
+                        InputStream inputStream;
+                         if (comValor) {
+                          inputStream = getClass().getResourceAsStream("/consulta_procedimentos.jasper");
+                         }else{
+                          inputStream = getClass().getResourceAsStream("/consulta_procedimentos_3.jasper");
+                         }
+			
+            
+           
+                // mapa de parâmetros do relatório
+                Map parametros = new HashMap();
+                int c = Sessao.getInstance().getClinica().getId();
+                parametros.put("idconsulta", idConsulta);
+                parametros.put("id_minha_empresa", c);
+                parametros.put("sequencia", sequencia);
+                    // abre o relatório
+
                     ReportUtils.openReport("Relatório de consultas", inputStream, parametros, connection);                    
                     
 

@@ -27,16 +27,17 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                      <Component id="jScrollPane6" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jC_albuns" min="-2" pref="371" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="bt_anterior" min="-2" pref="42" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="bt_proximo" min="-2" pref="42" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="bt_proximo" alignment="1" min="-2" pref="42" max="-2" attributes="0"/>
+                          <Component id="bt_anterior" alignment="1" min="-2" pref="42" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <Component id="jLabel1" alignment="0" min="-2" pref="863" max="-2" attributes="0"/>
-                  <Component id="jScrollPane6" alignment="0" min="-2" pref="863" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="jL_imagens" min="-2" pref="863" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -46,18 +47,17 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jLabel1" min="-2" pref="499" max="-2" attributes="0"/>
+              <Component id="jL_imagens" min="-2" pref="517" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="bt_proximo" max="32767" attributes="0"/>
-                  <Component id="bt_anterior" max="32767" attributes="0"/>
-                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                      <Component id="jLabel2" alignment="3" max="32767" attributes="0"/>
-                      <Component id="jC_albuns" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="bt_anterior" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="bt_proximo" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="jScrollPane6" min="-2" pref="92" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane6" min="-2" pref="92" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -77,13 +77,17 @@
               <Table columnCount="0" rowCount="0"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jT_imagensMousePressed"/>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jT_imagensKeyReleased"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
     <Component class="javax.swing.JButton" name="bt_proximo">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/br/com/markConsult/imagens/navigate-right-icon2.png"/>
+          <Image iconType="3" name="/br/com/markConsult/imagens/navigate-down-icon.png"/>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="Proxima imagem"/>
       </Properties>
@@ -94,7 +98,7 @@
     <Component class="javax.swing.JButton" name="bt_anterior">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/br/com/markConsult/imagens/navigate-left-icon (1).png"/>
+          <Image iconType="3" name="/br/com/markConsult/imagens/navigate-up-icon.png"/>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="Imagem anterior"/>
       </Properties>
@@ -102,21 +106,9 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bt_anteriorActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="jL_imagens">
       <Properties>
         <Property name="horizontalAlignment" type="int" value="0"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Album:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JComboBox" name="jC_albuns">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="0"/>
-        </Property>
       </Properties>
     </Component>
   </SubComponents>

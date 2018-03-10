@@ -6,7 +6,7 @@ package br.com.markConsult.classesMetodos;
  */
 
 
-import br.com.markConsult.dao.entidades.Paciente;
+import br.com.markConsult.entidades.Paciente;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;

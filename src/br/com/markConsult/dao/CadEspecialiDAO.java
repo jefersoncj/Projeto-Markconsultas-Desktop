@@ -4,7 +4,7 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Especialidade;
+import br.com.markConsult.entidades.Especialidade;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,7 +29,7 @@ public class CadEspecialiDAO extends AbstractConecxaoDAO {
      */
     boolean idAlterado = false;
     Especialidade especialidade = null;
-    private List<Especialidade> especialidades = new ArrayList<>();
+    private final List<Especialidade> especialidades = new ArrayList<>();
 
     public Integer inserir(Especialidade esp) {
 
@@ -40,34 +40,22 @@ public class CadEspecialiDAO extends AbstractConecxaoDAO {
             // pegar a connection
             connection = getConnection();
             beginTransaction(connection);
-            // GERAR O ID UNICO
-            String selectMaxID = "SELECT MAX(id) AS maxID FROM especialidades";
-
-            int maxID = 0;
-
-
-            // criar o statement
-            pstm = connection.prepareStatement(selectMaxID);
-            rs = pstm.executeQuery();
-            while (rs.next()) {
-                maxID = rs.getInt(1);
-            }
-
             // criar o sql
-            String sql = "INSERT INTO especialidades VALUES (?, ?)";
+            String sql = "INSERT INTO especialidades (ds_especialidade) VALUES (?)";
 
             // criar o statement
-            pstm = connection.prepareStatement(sql);
+           pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             // setar os params
-            int index = 0;
-            pstm.setInt(++index, ++maxID);
+            int index = 0;  
             pstm.setString(++index, esp.getEspecialidade());
-
-
-            pstm.execute();
-
+            pstm.executeUpdate();
+            rs = pstm.getGeneratedKeys();
+            int id = 0;
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
             commitTransaction(connection);
-            idInserido = maxID;
+            idInserido = id;
 
         } catch (Exception e) {
 

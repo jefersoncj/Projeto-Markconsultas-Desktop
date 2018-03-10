@@ -4,8 +4,8 @@
  */
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Especialidade;
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Especialidade;
+import br.com.markConsult.entidades.Usuario;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -201,7 +201,11 @@ public class CadUsuarioDAO extends AbstractConecxaoDAO implements ICadUsuarioDAO
 			int index = 0;
                         pstm.setString(++index, criptografia(usuario.getSenha()));
                         pstm.setString(++index, usuario.getCrm());
-                        pstm.setInt(++index, 0);
+                         if(usuario.getEspecialidade().getId() == null){
+                         pstm.setNull(++index, java.sql.Types.INTEGER );
+                        }else{
+                        pstm.setInt(++index, usuario.getEspecialidade().getId());
+                        }
 			pstm.setBoolean(++index, usuario.isHeAdm());
 			pstm.setBoolean(++index, usuario.isHeMedico());
 			pstm.setBoolean(++index, usuario.isHeAtendente());
@@ -229,7 +233,7 @@ public class CadUsuarioDAO extends AbstractConecxaoDAO implements ICadUsuarioDAO
                         }
 
                          // executar
-			pstm.execute();
+			pstm.executeUpdate();
 
 			commitTransaction(connection);
 			idAlterado = true;

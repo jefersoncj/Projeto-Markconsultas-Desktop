@@ -6,7 +6,7 @@
 
 package br.com.markConsult.dao;
 
-import br.com.markConsult.dao.entidades.Consulta;
+import br.com.markConsult.entidades.Consulta;
 import java.sql.Date;
 import java.util.List;
 

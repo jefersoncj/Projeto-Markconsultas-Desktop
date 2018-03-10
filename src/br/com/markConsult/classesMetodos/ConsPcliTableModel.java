@@ -6,7 +6,7 @@ package br.com.markConsult.classesMetodos;
  */
 
 
-import br.com.markConsult.dao.entidades.Consulta;
+import br.com.markConsult.entidades.Consulta;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -69,76 +69,64 @@ public class ConsPcliTableModel extends AbstractTableModel{
       @Override
     public String getColumnName(int column) {
         //qual o nome da coluna
-        if (column == COL_SEQ) {
-            return "Nº";
-        
-        }else if (column == COL_NOME) {
-            return "Nome";
-        
-        }else if (column == COL_IDCONV) {
-            return "Nº Convênio";
-        
-        }
-        else if (column == COL_CONVENO) {
-            return "Convênio";
-        
-        }
-        else if (column == COL_VALOR) {
-            return "Valor";
-        
-        }
-        else if (column == COL_PAGTO) {
-            return "Pagamento";
-        
-        }
-       else if (column == COL_DATA) {
-            return "Data Consulta";
-        
-        }  else if (column == COL_STATUS) {
-            return "Status";
-            
-        }else if (column == COL_TIPO) {
-            return "Tipo Consulta";
-            
-        }else if (column == COL_PROCE) {
-            return "Procedimento";
-            
-        }else if (column == COL_OBS) {
-            return "Observação";
-            
+        switch (column) {
+            case COL_SEQ:
+                return "Nº";
+            case COL_NOME:
+                return "Nome";
+            case COL_IDCONV:
+                return "Nº Convênio";
+            case COL_CONVENO:
+                return "Convênio";
+            case COL_VALOR:
+                return "Valor";
+            case COL_PAGTO:
+                return "Pagamento";
+            case COL_DATA:
+                return "Data Consulta";
+            case COL_STATUS:
+                return "Status";
+            case COL_TIPO:
+                return "Tipo Consulta";
+            case COL_PROCE:
+                return "Procedimento";
+            case COL_OBS:
+                return "Observação";
+            default:
+                break;
         }
         return "";
     }
       
       @Override
     public Class getColumnClass(int columnIndex) {
-       // retorna a classe que representa a coluna
-        if (columnIndex == COL_SEQ) {
-            return int.class;
-        }else if (columnIndex == COL_NOME) {
-        return String.class;
-       }
-        else if (columnIndex == COL_IDCONV) {
-        return String.class;
-       }else if (columnIndex == COL_CONVENO) {
-        return String.class;
-       }else if (columnIndex == COL_VALOR) {
-        return String.class;
-       }else if (columnIndex == COL_PAGTO) {
-        return String.class;
-       }
-       else if (columnIndex == COL_DATA) {
-            return Date.class;
-        }else if (columnIndex == COL_STATUS) {
-        return String.class;
-       }else if (columnIndex == COL_TIPO) {
-        return String.class;
-       }else if (columnIndex == COL_PROCE) {
-        return String.class;
-       }
-        else if (columnIndex == COL_OBS) {
-        return String.class;
-       }
+        // retorna a classe que representa a coluna
+        switch (columnIndex) {
+            case COL_SEQ:
+                return int.class;
+            case COL_NOME:
+                return String.class;
+            case COL_IDCONV:
+                return String.class;
+            case COL_CONVENO:
+                return String.class;
+            case COL_VALOR:
+                return String.class;
+            case COL_PAGTO:
+                return String.class;
+            case COL_DATA:
+                return Date.class;
+            case COL_STATUS:
+                return String.class;
+            case COL_TIPO:
+                return String.class;
+            case COL_PROCE:
+                return String.class;
+            case COL_OBS:
+                return String.class;
+            default:
+                break;
+        }
        
         return String.class;
       }
@@ -148,57 +136,50 @@ public class ConsPcliTableModel extends AbstractTableModel{
         Consulta c = consultas.get(rowIndex);
  
         //verifica qual valor deve ser retornado
-        if (columnIndex == COL_SEQ) {
-            return consultas.indexOf(c)+1;
-        } else if (columnIndex == COL_NOME) {
-            return c.getPaciente().getNome();
-        }else if (columnIndex == COL_IDCONV) {
-            return c.getPaciente().getNumConvenio();
-        }
-        else if (columnIndex == COL_CONVENO) {
-            return c.getConvenio().getDsConvenio();
-        }
-        else if (columnIndex == COL_VALOR) {
-            return nf.format(c.getValor());
-        }
-        else if (columnIndex == COL_PAGTO) {
-            return c.getCondPagt().getCondPagt();
-        }
-        else if (columnIndex == COL_DATA) {
-            return c.getDataConsulta();
-        }else if (columnIndex == COL_STATUS) {
-            
-            String status = c.getStatus().toString();
-            switch (status) {
-                case "1":
-                    status = "ABERTA";
-                    break;
-                case "2":
-                    status = "ENCERRADA";
-                    break;
-                case "3":
-                    status = "CANCELADA";
-                    break;
-                case "4":
-                    status = "FALTOU";
-                    break;
-                case "5":
-                    status = "AGUARDANDO";
-                    break;
-                case "6":
-                    status = "EM CONSULTA";
-                    break;
-            }
-            return status;
-        }
-        else if (columnIndex == COL_TIPO) {
-            return c.getTipo().getTipoCon();
-        }
-         else if (columnIndex == COL_PROCE) {
-            return c.getProcedimento().getDsProcedimento();
-        }
-        else if (columnIndex == COL_OBS) {
-            return c.getObs();
+        switch (columnIndex) {
+            case COL_SEQ:
+                return consultas.indexOf(c)+1;
+            case COL_NOME:
+                return c.getPaciente().getNome();
+            case COL_IDCONV:
+                return c.getPaciente().getNumConvenio();
+            case COL_CONVENO:
+                return c.getConvenio().getDsConvenio();
+            case COL_VALOR:
+                return nf.format(c.getValor());
+            case COL_PAGTO:
+                return c.getCondPagt().getCondPagt();
+            case COL_DATA:
+                return c.getDataConsulta();
+            case COL_STATUS:
+                String status = c.getStatus().toString();
+                switch (status) {
+                    case "1":
+                        status = "ABERTA";
+                        break;
+                    case "2":
+                        status = "ENCERRADA";
+                        break;
+                    case "3":
+                        status = "CANCELADA";
+                        break;
+                    case "4":
+                        status = "FALTOU";
+                        break;
+                    case "5":
+                        status = "AGUARDANDO";
+                        break;
+                    case "6":
+                        status = "EM CONSULTA";
+                        break;
+                }
+                return status;
+            case COL_TIPO:
+                return c.getTipo().getTipoCon();
+            case COL_OBS:
+                return c.getObs();
+            default:
+                break;
         }
         return "";
         

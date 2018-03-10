@@ -7,7 +7,7 @@ package br.com.markConsult.classesMetodos;
 
 
 
-import br.com.markConsult.dao.entidades.Receita;
+import br.com.markConsult.entidades.Receita;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;

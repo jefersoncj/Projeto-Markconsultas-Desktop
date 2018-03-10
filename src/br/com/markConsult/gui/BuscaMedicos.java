@@ -7,14 +7,20 @@ package br.com.markConsult.gui;
 import br.com.markConsult.classesMetodos.FixedLengthDocument;
 import br.com.markConsult.classesMetodos.UsuarioTableModel;
 import br.com.markConsult.dao.CadUsuarioDAO;
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Usuario;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
@@ -31,6 +37,8 @@ public class BuscaMedicos extends javax.swing.JDialog {
 
     /**
      * Creates new form ConsPorClientes
+     * @param parent
+     * @param modal
      */
     public BuscaMedicos(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -75,6 +83,18 @@ public class BuscaMedicos extends javax.swing.JDialog {
         }); 
         
          tf_dado.requestFocus();
+         
+        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+
+        Action escapeAction = new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE", escapeAction);
     }
 
     /**
@@ -110,13 +130,10 @@ public class BuscaMedicos extends javax.swing.JDialog {
 
         jTMedicos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+
             }
         ));
         jTMedicos.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -283,18 +300,15 @@ public class BuscaMedicos extends javax.swing.JDialog {
         //</editor-fold>
 
         /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                BuscaMedicos dialog = new BuscaMedicos(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            BuscaMedicos dialog = new BuscaMedicos(new javax.swing.JFrame(), true);
+            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosing(java.awt.event.WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+            dialog.setVisible(true);
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables

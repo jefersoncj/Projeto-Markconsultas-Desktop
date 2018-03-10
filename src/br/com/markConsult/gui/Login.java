@@ -6,11 +6,11 @@
 package br.com.markConsult.gui;
 
 import br.com.markConsult.classesMetodos.FixedLengthDocument;
-import br.com.markConsult.dao.CadEmpresaDAO;
+import br.com.markConsult.dao.CadClinicaDAO;
 import br.com.markConsult.dao.CadUsuarioDAO;
-import br.com.markConsult.dao.entidades.Empresa;
-import br.com.markConsult.dao.entidades.Sessao;
-import br.com.markConsult.dao.entidades.Usuario;
+import br.com.markConsult.entidades.Sessao;
+import br.com.markConsult.entidades.Clinica;
+import br.com.markConsult.entidades.Usuario;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.net.URL;
@@ -22,7 +22,7 @@ import javax.swing.JOptionPane;
  * @author Jeferson1
  */
 public class Login extends javax.swing.JFrame {
-    List<Empresa> e;
+    List<Clinica> e;
     /**
      * Creates new form Login
      */
@@ -36,11 +36,11 @@ public class Login extends javax.swing.JFrame {
         tf_usuario.setDocument(new  FixedLengthDocument(15));
         tf_senha.setDocument(new  FixedLengthDocument(10));
         tf_usuario.requestFocus();
-        CadEmpresaDAO dao = new CadEmpresaDAO();
+        CadClinicaDAO dao = new CadClinicaDAO();
          e =  dao.buscaEpresa("", 'e');
-        for (Empresa e1 : e) {
-            jC_empresa.addItem(e1);
-        }
+         e.stream().forEach((e1) -> {
+             jC_empresa.addItem(e1);
+        });
     }
 
     /**
@@ -122,7 +122,7 @@ public class Login extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(102, 102, 102));
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel3.setText("Mark Consulta");
+        jLabel3.setText("NEUROCENTER");
         getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 300, 30));
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/markConsult/imagens/login.jpg"))); // NOI18N
@@ -247,7 +247,7 @@ public void okSelcionado(){
         if (us != null) {
           Sessao sessao = Sessao.getInstance();
           sessao.setUsuario(us);
-          sessao.setEmpresa((Empresa) jC_empresa.getSelectedItem());
+          sessao.setClinica((Clinica) jC_empresa.getSelectedItem());
             dispose();
             TrocaSenha troca =   new TrocaSenha(null, true);
             troca.setaUsu(usu);
@@ -263,14 +263,12 @@ public void okSelcionado(){
            if (us != null) {
                Sessao sessao = Sessao.getInstance();
           sessao.setUsuario(us);
-          sessao.setEmpresa((Empresa) jC_empresa.getSelectedItem());
+          sessao.setClinica((Clinica) jC_empresa.getSelectedItem());
            dispose();
            TelaPrincipal t =  new TelaPrincipal();
            t.setVisible(true);
            //t.permicao();
-           
-          
-              
+
             }   
         else{
             JOptionPane.showMessageDialog(null, "Usuário ou senha inválidos!");

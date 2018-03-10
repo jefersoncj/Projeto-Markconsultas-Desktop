@@ -5,6 +5,7 @@
 package br.com.markConsult.relatorios;
 
 import java.awt.BorderLayout;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class ReportUtils {
             String titulo,
             InputStream inputStream,
             Map parametros,
-            Connection conex ) throws JRException {
+            Connection conex ) throws JRException, IOException {
  
 //        /*
 //         * Cria um JasperPrint, que é a versão preenchida do relatório,
@@ -69,7 +70,7 @@ public class ReportUtils {
             String titulo,
             InputStream inputStream,
             Map parametros,
-            JRDataSource dataSource ) throws JRException {
+            JRDataSource dataSource ) throws JRException, IOException {
  
         /*
          * Cria um JasperPrint, que é a versão preenchida do relatório,
@@ -88,12 +89,40 @@ public class ReportUtils {
 //     * @param titulo Título do JFrame.
 //     * @param print JasperPrint do relatório.
 //     */
-    private static void viewReportFrame( String titulo, JasperPrint print ) {
- 
-        /*
-         * Cria um JRViewer para exibir o relatório.
-         * Um JRViewer é uma JPanel.
-         */
+    private static void viewReportFrame( String titulo, JasperPrint print ) throws JRException, IOException {
+//            DateFormat dateFormat = new SimpleDateFormat("HHmmss"); 
+//         Date date = new Date(); 
+//         String d = dateFormat.format(date);
+//
+//         String tit = titulo+d;
+//        JasperExportManager.exportReportToPdfFile(print, "C:/markconsultas/tempRel/"+tit+".pdf"); 
+//       
+//        //Runtime.getRuntime().exec("cmd /c start C:/rep/arquivo.pdf"); 
+//        File file = new File("C:/markconsultas/tempRel/"+tit+".pdf");
+//        java.awt.Desktop.getDesktop().open(file.getAbsoluteFile());
+//  
+//          
+//        
+//        File diretorio = new File("C:\\markconsultas/tempRel");   
+//          
+//        FileFilter ff = new FileFilter() {   
+//            @Override
+//            public boolean accept(File arquivo){   
+//                return arquivo.getName().endsWith(".pdf");  
+//            }   
+//        };   
+//          
+//        File[] arquivos = diretorio.listFiles(ff);   
+//    
+//        if(arquivos != null){   
+//            for(File arquivo : arquivos){   
+//               arquivo.deleteOnExit();    
+//            }   
+//        }
+//        /*
+//         * Cria um JRViewer para exibir o relatório.
+//         * Um JRViewer é uma JPanel.
+//         */
         JRViewer viewer = new JRViewer( print );
  
         // cria o JFrame
